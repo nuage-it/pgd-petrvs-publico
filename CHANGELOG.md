@@ -1,3 +1,26 @@
+## 2.9.3 09/12/2025
+### Adicionado
+- Avisos de erro interno do sistema enviados ao Microsoft Teams, com informações básicas para acompanhamento rápido.
+### Modificado
+- Melhorias de desempenho em carregamento e operações frequentes, tornando o uso mais ágil e fluido.
+### Corrigido
+- Ajustes no fluxo de “forçar SIAPE”: mensagens mais claras, validações adicionais e resposta mais estável em casos de erro.
+
+## 2.9.2 05/12/2025 (Hotfix)
+### Adicionado
+- Suporte ao Elastic APM na infraestrutura Docker, permitindo monitoramento de performance do PHP com variáveis configuráveis via `.env`.
+### Modificado
+- Ajustes na integração e configuração do APM para permitir habilitar/desabilitar por ambiente e manter desativado por padrão quando não definido.
+## 2.9.1 05/12/2025 (Hotfix)
+### Modificado
+- Registro de consultas lentas diário: o arquivo de log de consultas lentas passa a ser gerado diariamente no formato `dd-mm-YYYY-mysql-slow.log`, facilitando auditoria e organização dos registros.
+- Criação automática do log diário: adicionamos um agendamento para garantir a criação do arquivo de log do dia com as permissões necessárias antes do início das operações.
+### Corrigido
+- Estabilidade no monitoramento de desempenho: correções para evitar falhas na leitura e notificação das consultas lentas, garantindo avisos consistentes.
+- Consistência ao notificar consultas lentas: ajustes na leitura do último registro válido do log para evitar mensagens incorretas.
+### Segurança
+- Melhoria no controle de limpeza de logs: adicionado processo diário para remoção de logs antigos (mais de 10 dias), reduzindo exposição e uso de armazenamento.
+
 ## 2.9.0 03/12/2025
 ### Modificado
 - Melhorias significativas em desempenho das queries e adição de cache para otimização de performance
