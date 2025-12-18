@@ -16,6 +16,7 @@ import {
   InfoGrid,
   InfoGridItem
 } from '../components/doc-components'
+import { withBasePath } from '@/lib/basePath'
 
 export default function IntegracaoSiape() {
   useEffect(() => {
@@ -135,7 +136,7 @@ export default function IntegracaoSiape() {
               Visão geral da integração entre o Sistema PGD Petrvs e o SIAPE no contexto do Governo Federal.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-1-contexto/sistema-contexto.png" alt="Contexto geral do sistema PGD-SIAPE" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-1-contexto/sistema-contexto.png')} alt="Contexto geral do sistema PGD-SIAPE" className="w-full rounded-lg border border-gray-200" />
             </div>
             <InfoBox variant="info" icon={Activity} title="INTEGRAÇÃO GOVERNAMENTAL">
               O PGD Petrvs integra-se com o SIAPE através do ConectaGov, garantindo dados oficiais e atualizados
@@ -150,7 +151,7 @@ export default function IntegracaoSiape() {
               Mapeamento completo dos atores envolvidos na integração e suas responsabilidades.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-1-contexto/atores-principais.png" alt="Atores principais da integração" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-1-contexto/atores-principais.png')} alt="Atores principais da integração" className="w-full rounded-lg border border-gray-200" />
             </div>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="p-4 rounded-lg bg-blue-50 border border-govbr-blue-600">
@@ -192,7 +193,7 @@ export default function IntegracaoSiape() {
               Arquitetura em camadas da integração SIAPE com detalhamento de componentes técnicos.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-2-arquitetura/componentes-tecnicos.png" alt="Componentes técnicos da arquitetura" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-2-arquitetura/componentes-tecnicos.png')} alt="Componentes técnicos da arquitetura" className="w-full rounded-lg border border-gray-200" />
             </div>
             <div className="grid md:grid-cols-4 gap-4">
               <div className="p-3 rounded-lg bg-blue-50 border border-govbr-blue-600 text-center">
@@ -221,7 +222,7 @@ export default function IntegracaoSiape() {
               Detalhamento completo das APIs ConectaGov/SIAPE e configurações de comunicação.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-2-arquitetura/apis-endpoints.png" alt="APIs e endpoints detalhados" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-2-arquitetura/apis-endpoints.png')} alt="APIs e endpoints detalhados" className="w-full rounded-lg border border-gray-200" />
             </div>
             <InfoBox variant="warning" icon={Lock} title="SEGURANÇA">
               Todas as comunicações utilizam HTTPS/TLS 1.3, OAuth 2.0 e controle de taxa para garantir
@@ -236,7 +237,7 @@ export default function IntegracaoSiape() {
               Visão geral do fluxo completo desde a API SIAPE até as tabelas definitivas do sistema.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-2-arquitetura/pipeline.png" alt="Pipeline completo de integração SIAPE" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-2-arquitetura/pipeline.png')} alt="Pipeline completo de integração SIAPE" className="w-full rounded-lg border border-gray-200" />
             </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 rounded-lg bg-govbr-blue-50 border-2 border-govbr-blue-600">
@@ -287,7 +288,7 @@ export default function IntegracaoSiape() {
               Estrutura de herança e relacionamentos entre as classes do BuscarDadosSiapeJob.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-2-arquitetura/architecture.png" alt="Arquitetura de classes da integração SIAPE" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-2-arquitetura/architecture.png')} alt="Arquitetura de classes da integração SIAPE" className="w-full rounded-lg border border-gray-200" />
             </div>
           <div className="grid md:grid-cols-4 gap-4">
             {[
@@ -563,7 +564,7 @@ export default function IntegracaoSiape() {
               Processo completo desde o gatilho inicial até a finalização, incluindo todas as fases.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-3-processos/fluxo-completo.png" alt="Fluxo completo de execução" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-3-processos/fluxo-completo.png')} alt="Fluxo completo de execução" className="w-full rounded-lg border border-gray-200" />
             </div>
             <div className="grid md:grid-cols-5 gap-3">
               {[
@@ -588,7 +589,7 @@ export default function IntegracaoSiape() {
               Estratégias abrangentes para tratamento de erros, recuperação e monitoramento.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-3-processos/tratamento-erros.png" alt="Tratamento de erros e recuperação" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-3-processos/tratamento-erros.png')} alt="Tratamento de erros e recuperação" className="w-full rounded-lg border border-gray-200" />
             </div>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="p-4 rounded-lg bg-red-50 border border-red-500">
@@ -628,7 +629,7 @@ export default function IntegracaoSiape() {
               Fluxo detalhado de execução das 4 etapas sequenciais com interações entre componentes.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-3-processos/sequence.png" alt="Sequência de execução das etapas" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-3-processos/sequence.png')} alt="Sequência de execução das etapas" className="w-full rounded-lg border border-gray-200" />
             </div>
           </WhiteCard>
 
@@ -639,7 +640,7 @@ export default function IntegracaoSiape() {
               Visualização do fluxo de dados desde a API SIAPE até as tabelas definitivas do sistema.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-3-processos/dataflow.png" alt="Fluxo de dados da integração SIAPE" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-3-processos/dataflow.png')} alt="Fluxo de dados da integração SIAPE" className="w-full rounded-lg border border-gray-200" />
             </div>
           </WhiteCard>
         </div>
@@ -655,7 +656,7 @@ export default function IntegracaoSiape() {
               Modelo de dados completo com relacionamentos entre tabelas temporárias, controle e produção.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-4-detalhes/estruturas-dados.png" alt="Estruturas de dados detalhadas" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-4-detalhes/estruturas-dados.png')} alt="Estruturas de dados detalhadas" className="w-full rounded-lg border border-gray-200" />
             </div>
             <div className="grid md:grid-cols-4 gap-4">
               <div className="p-3 rounded-lg bg-yellow-50 border border-yellow-500 text-center">
@@ -684,7 +685,7 @@ export default function IntegracaoSiape() {
               Transformação detalhada dos dados XML SIAPE para as estruturas do banco de dados PGD.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-4-detalhes/mapeamento-campos.png" alt="Mapeamento detalhado de campos" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-4-detalhes/mapeamento-campos.png')} alt="Mapeamento detalhado de campos" className="w-full rounded-lg border border-gray-200" />
             </div>
             <InfoBox variant="info" icon={Filter} title="TRANSFORMAÇÕES APLICADAS">
               <div className="grid md:grid-cols-2 gap-4 mt-3">
@@ -717,7 +718,7 @@ export default function IntegracaoSiape() {
               5 mecanismos implementados para reduzir tempo de execução e volume de requisições.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-4-detalhes/optimization.png" alt="Mecanismos de otimização" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-4-detalhes/optimization.png')} alt="Mecanismos de otimização" className="w-full rounded-lg border border-gray-200" />
             </div>
           <div className="grid md:grid-cols-2 gap-4">
             {[
@@ -746,7 +747,7 @@ export default function IntegracaoSiape() {
               Configurações completas do sistema incluindo variáveis de ambiente, limites e monitoramento.
             </p>
             <div className="mb-6">
-              <img src="/mermaid/integracao-siape/nivel-4-detalhes/configuration.png" alt="Configurações do sistema" className="w-full rounded-lg border border-gray-200" />
+              <img src={withBasePath('/mermaid/integracao-siape/nivel-4-detalhes/configuration.png')} alt="Configurações do sistema" className="w-full rounded-lg border border-gray-200" />
             </div>
           <div className="p-4 rounded-lg mb-4 bg-gray-50 border border-gray-200">
             <h3 className="font-semibold mb-3 text-sm text-gray-900">Variáveis de Ambiente</h3>
