@@ -1,0 +1,29 @@
+gantt
+    title Timeline de Execucao - SincronizarSiapeJob
+    dateFormat HH:mm
+    axisFormat %H:%M
+
+    section Configuracao
+    Inicializacao (memory, timeout)      :a1, 03:00, 1m
+    Carregar Entidades                   :a2, after a1, 1m
+
+    section Fase 1 - Unidades
+    Ler siape_dadosUORG                  :b1, after a2, 2m
+    Parse XMLs                           :b2, after b1, 3m
+    Atualizar integracao_unidades        :b3, after b2, 3m
+    Atualizar hierarquia unidades        :b4, after b3, 2m
+
+    section Fase 2 - Servidores
+    Ler siape_consultaDados              :c1, after b4, 2m
+    Parse XMLs JOIN                      :c2, after c1, 4m
+    Atualizar integracao_servidores      :c3, after c2, 3m
+    Atualizar usuarios                   :c4, after c3, 3m
+    Atualizar lotacoes                   :c5, after c4, 2m
+
+    section Fase 3 - Gestores
+    Query identificar chefes             :d1, after c5, 1m
+    Atribuir GESTOR                      :d2, after d1, 2m
+    Alterar perfis                       :d3, after d2, 1m
+
+    section Finalizacao
+    Salvar resultado                     :e1, after d3, 1m

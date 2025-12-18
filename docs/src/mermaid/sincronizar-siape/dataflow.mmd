@@ -1,0 +1,56 @@
+flowchart LR
+    subgraph INPUT["ENTRADA XMLs SIAPE"]
+        direction TB
+        X1[/"dadosUorgResponse"/]
+        X2[/"consultaDadosPessoaisResponse"/]
+        X3[/"consultaDadosFuncionaisResponse"/]
+    end
+
+    subgraph TEMP["TABELAS TEMPORARIAS"]
+        direction TB
+        T1[("siape_dadosUORG")]
+        T2[("siape_consultaDadosPessoais")]
+        T3[("siape_consultaDadosFuncionais")]
+    end
+
+    subgraph TRANSFORM["TRANSFORMACOES"]
+        direction TB
+        TR1{{"ProcessaDadosSiapeBD"}}
+        TR2{{"IntegracaoSiapeService"}}
+    end
+
+    subgraph INTEG["TABELAS DE INTEGRACAO"]
+        direction TB
+        I1[["integracao_unidades"]]
+        I2[["integracao_servidores"]]
+    end
+
+    subgraph FINAL["TABELAS DEFINITIVAS"]
+        direction TB
+        F1[["unidades"]]
+        F2[["usuarios"]]
+        F3[["unidades_integrantes"]]
+    end
+
+    X1 --> T1
+    X2 --> T2
+    X3 --> T3
+
+    T1 --> TR1
+    T2 --> TR1
+    T3 --> TR1
+    TR1 --> TR2
+
+    TR2 --> I1
+    TR2 --> I2
+
+    I1 --> F1
+    I2 --> F2
+    F1 --> F3
+    F2 --> F3
+
+    style INPUT fill:#e3f2fd,stroke:#1565c0
+    style TEMP fill:#fff8e1,stroke:#ffa000
+    style TRANSFORM fill:#f3e5f5,stroke:#7b1fa2
+    style INTEG fill:#e0f2f1,stroke:#00695c
+    style FINAL fill:#fce4ec,stroke:#c2185b

@@ -1,0 +1,43 @@
+flowchart TB
+    subgraph CASOS["CASOS ESPECIAIS"]
+        direction TB
+
+        subgraph SIT_FUNC["SITUACAO FUNCIONAL"]
+            SF1{"codSitFuncional?"}
+            SF2["Codigo 8: ATIVO_EM_OUTRO_ORGAO"]
+            SF3["Codigo 76: CONTRATO_TEMPORARIO"]
+            SF4["Outros codigos: Processar normalmente"]
+            SF5["Ignorar servidor"]
+            SF6["Buscar unidade por siglaUorgLotacao"]
+
+            SF1 -->|8| SF2 --> SF5
+            SF1 -->|76| SF3 --> SF6
+            SF1 -->|Outros| SF4
+        end
+
+        subgraph EMAIL_DUP["EMAIL DUPLICADO"]
+            ED1{"Email ja existe?"}
+            ED2["Gerar email fake: matricula@petrvs.gov.br"]
+            ED3{"Ainda duplicado?"}
+            ED4["Usar UUID: uuid@petrvs.gov.br"]
+            ED5["Usar email original"]
+
+            ED1 -->|Sim| ED2 --> ED3
+            ED1 -->|Nao| ED5
+            ED3 -->|Sim| ED4
+            ED3 -->|Nao| ED5
+        end
+
+        subgraph BLACKLIST["BLACKLIST"]
+            BL1{"SOAP Fault codigo 0002?"}
+            BL2["Adicionar CPF/codigo a blacklist"]
+            BL3["Processar normalmente"]
+
+            BL1 -->|Sim| BL2
+            BL1 -->|Nao| BL3
+        end
+    end
+
+    style SIT_FUNC fill:#e3f2fd,stroke:#1565c0
+    style EMAIL_DUP fill:#f3e5f5,stroke:#7b1fa2
+    style BLACKLIST fill:#ffebee,stroke:#c62828
