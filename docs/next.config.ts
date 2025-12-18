@@ -1,10 +1,10 @@
 import type { NextConfig } from "next";
 
 const isProd = process.env.NODE_ENV === 'production';
-const basePath = isProd ? '/pgd-petrvs-publico' : '';
+const basePath = isProd ? '/generated-docs' : '';
 
 const nextConfig: NextConfig = {
-  // Static export for GitHub Pages
+  // Static export for Docker deployment
   output: 'export',
   basePath: basePath,
   assetPrefix: basePath,

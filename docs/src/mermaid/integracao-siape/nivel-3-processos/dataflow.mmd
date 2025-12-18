@@ -1,0 +1,78 @@
+flowchart LR
+    subgraph INPUT["ENTRADA"]
+        direction TB
+        SIAPE[("SIAPE<br/>Sistema Oficial")]
+        CONECTA["ConectaGov<br/>API Gateway"]
+        SIAPE --> CONECTA
+    end
+
+    subgraph ETAPAS["4 ETAPAS SEQUENCIAIS"]
+        direction TB
+        
+        subgraph E1["ETAPA 1"]
+            E1_OP["listaUorgs<br/>1 requisição"]
+        end
+        
+        subgraph E2["ETAPA 2"]
+            E2_OP["dadosUorg<br/>N requisições<br/>(paralelas)"]
+        end
+        
+        subgraph E3["ETAPA 3"]
+            E3_OP["listaServidores<br/>N requisições<br/>(paralelas)"]
+        end
+        
+        subgraph E4["ETAPA 4"]
+            E4A["consultaDadosFuncionais<br/>M requisições (paralelas)"]
+            E4B["consultaDadosPessoais<br/>M requisições (paralelas)"]
+        end
+    end
+
+    subgraph TEMP["TABELAS TEMPORÁRIAS"]
+        direction TB
+        T1[("siape_listaUORG<br/>📄 XML lista unidades")]
+        T2[("siape_dadosUORG<br/>📄 XML detalhes unidades")]
+        T3[("siape_listaServidores<br/>📄 XML lista CPFs")]
+        T4[("siape_consultaDadosFuncionais<br/>📄 XML dados funcionais")]
+        T5[("siape_consultaDadosPessoais<br/>📄 XML dados pessoais")]
+    end
+
+    subgraph PROCESSING["PROCESSAMENTO"]
+        direction TB
+        SYNC["SincronizarSiapeJob<br/>🔄 Parse XMLs<br/>🔄 3 Fases"]
+    end
+
+    subgraph OUTPUT["SAÍDA"]
+        direction TB
+        
+        subgraph CONTROLE["CONTROLE"]
+            INT_U[("integracao_unidades<br/>🎯 Controle sync unidades")]
+            INT_S[("integracao_servidores<br/>🎯 Controle sync servidores")]
+        end
+        
+        subgraph OFICIAL["DADOS OFICIAIS"]
+            UNID[("unidades<br/>🏢 Dados oficiais")]
+            USER[("usuarios<br/>👤 Dados oficiais")]
+            VINC[("unidades_integrantes<br/>🔗 Vínculos")]
+        end
+    end
+
+    CONECTA --> E1_OP
+    E1_OP --> T1
+    T1 --> E2_OP
+    E2_OP --> T2
+    T2 --> E3_OP
+    E3_OP --> T3
+    T3 --> E4A & E4B
+    E4A --> T4
+    E4B --> T5
+
+    T1 & T2 & T3 & T4 & T5 --> SYNC
+    
+    SYNC --> INT_U & INT_S
+    SYNC --> UNID & USER & VINC
+
+    style INPUT fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style ETAPAS fill:#dbeafe,stroke:#0066cc,stroke-width:2px
+    style TEMP fill:#fff8e1,stroke:#ffa000,stroke-width:2px
+    style PROCESSING fill:#dcfce7,stroke:#168821,stroke-width:2px
+    style OUTPUT fill:#fce4ec,stroke:#c2185b,stroke-width:2px

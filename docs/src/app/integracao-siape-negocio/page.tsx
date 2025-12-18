@@ -119,7 +119,6 @@ export default function IntegracaoSiapeNegocio() {
   }, [])
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'Início', href: '/', icon: Home },
     { label: 'Integração SIAPE - Visão de Negócio', icon: Building }
   ]
 

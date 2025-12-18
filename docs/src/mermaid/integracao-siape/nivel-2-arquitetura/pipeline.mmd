@@ -1,0 +1,54 @@
+flowchart TB
+    subgraph PIPELINE["PIPELINE DE INTEGRAÇÃO SIAPE"]
+        direction TB
+
+        subgraph API["API CONECTAGOV/SIAPE"]
+            direction TB
+            SIAPE[("SIAPE<br/>Fonte Oficial")]
+            CONECTA["ConectaGov<br/>Gateway"]
+            SIAPE --> CONECTA
+        end
+
+        subgraph JOB1["JOB 1: BuscarDadosSiapeJob"]
+            direction TB
+            AUTH["OAuth2<br/>Token"]
+            COLETA["Coleta XMLs<br/>4 Etapas Sequenciais"]
+            AUTH --> COLETA
+        end
+
+        subgraph TEMP["TABELAS TEMPORÁRIAS"]
+            direction TB
+            T1[("siape_listaUORG<br/>Lista Unidades")]
+            T2[("siape_dadosUORG<br/>Detalhes Unidades")]
+            T3[("siape_listaServidores<br/>Lista CPFs")]
+            T4[("siape_consultaDadosFuncionais<br/>Dados Funcionais")]
+            T5[("siape_consultaDadosPessoais<br/>Dados Pessoais")]
+        end
+
+        subgraph JOB2["JOB 2: SincronizarSiapeJob"]
+            direction TB
+            PARSE["Parse XMLs<br/>XPath Processing"]
+            SYNC["Sincronização<br/>3 Fases"]
+            PARSE --> SYNC
+        end
+
+        subgraph FINAL["TABELAS DEFINITIVAS"]
+            direction TB
+            F1[("integracao_unidades<br/>Controle Unidades")]
+            F2[("integracao_servidores<br/>Controle Servidores")]
+            F3[("unidades<br/>Dados Oficiais")]
+            F4[("usuarios<br/>Dados Oficiais")]
+            F5[("unidades_integrantes<br/>Vínculos")]
+        end
+
+        CONECTA --> COLETA
+        COLETA --> T1 & T2 & T3 & T4 & T5
+        T1 & T2 & T3 & T4 & T5 --> PARSE
+        SYNC --> F1 & F2 & F3 & F4 & F5
+    end
+
+    style API fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style JOB1 fill:#dbeafe,stroke:#0066cc,stroke-width:2px
+    style TEMP fill:#fff8e1,stroke:#ffa000,stroke-width:2px
+    style JOB2 fill:#dcfce7,stroke:#168821,stroke-width:2px
+    style FINAL fill:#fce4ec,stroke:#c2185b,stroke-width:2px

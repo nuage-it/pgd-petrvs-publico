@@ -1,0 +1,91 @@
+graph TB
+    subgraph CONECTAGOV["🌐 CONECTAGOV API GATEWAY"]
+        direction TB
+        
+        subgraph AUTH_LAYER["🔐 CAMADA AUTENTICAÇÃO"]
+            OAUTH_ENDPOINT["🎫 /oauth/token<br/>📋 grant_type: client_credentials<br/>🔑 client_id + client_secret<br/>⏱️ expires_in: 3600s"]
+            TOKEN_VALIDATION["✅ Token Validation<br/>🔍 JWT Signature Check<br/>⏱️ Expiry Verification"]
+        end
+        
+        subgraph SOAP_SERVICES["🧼 SERVIÇOS SOAP"]
+            direction TB
+            
+            subgraph UNIDADES_API["🏢 APIs UNIDADES"]
+                LISTA_UORGS["📋 listaUorgs<br/>🎯 Endpoint: /soap/services<br/>📄 Action: listaUorgs<br/>📊 Response: Lista XML"]
+                DADOS_UORG["🏢 dadosUorg<br/>🎯 Endpoint: /soap/services<br/>📄 Action: dadosUorg<br/>🔢 Param: codigoUorg<br/>📊 Response: Detalhes XML"]
+            end
+            
+            subgraph SERVIDORES_API["👥 APIs SERVIDORES"]
+                LISTA_SERV["👥 listaServidores<br/>🎯 Endpoint: /soap/services<br/>📄 Action: listaServidores<br/>🔢 Param: codigoUorg<br/>📊 Response: CPFs XML"]
+                DADOS_FUNC["💼 consultaDadosFuncionais<br/>🎯 Endpoint: /soap/services<br/>📄 Action: consultaDadosFuncionais<br/>🔢 Param: cpf<br/>📊 Response: Funcionais XML"]
+                DADOS_PESS["👤 consultaDadosPessoais<br/>🎯 Endpoint: /soap/services<br/>📄 Action: consultaDadosPessoais<br/>🔢 Param: cpf<br/>📊 Response: Pessoais XML"]
+            end
+        end
+        
+        subgraph RATE_LIMITING["⚡ CONTROLE TAXA"]
+            THROTTLING["🚦 Rate Limiting<br/>📊 1000 req/min por client<br/>⏱️ Burst: 100 req/10s<br/>🔄 Retry-After Header"]
+            CIRCUIT_BREAKER["🔌 Circuit Breaker<br/>❌ Failure Threshold: 50%<br/>⏱️ Timeout: 30s<br/>🔄 Half-Open: 60s"]
+        end
+    end
+    
+    subgraph PGD_CLIENT["🎯 PGD PETRVS CLIENT"]
+        direction TB
+        
+        subgraph HTTP_CLIENT["🌐 HTTP CLIENT CONFIG"]
+            GUZZLE_CONFIG["⚙️ Guzzle HTTP<br/>⏱️ timeout: 300s<br/>⏱️ connect_timeout: 30s<br/>🔄 retry: 3 attempts<br/>📊 verify: SSL cert"]
+            HEADERS_CONFIG["📋 Headers Padrão<br/>🧼 SOAPAction: required<br/>📄 Content-Type: text/xml<br/>🔐 Authorization: Bearer<br/>👤 User-Agent: PGD-Petrvs"]
+        end
+        
+        subgraph REQUEST_BUILDER["🔨 CONSTRUTOR REQUISIÇÕES"]
+            SOAP_ENVELOPE["📄 SOAP Envelope Builder<br/>🏗️ XML Structure<br/>🎯 Method Mapping<br/>📊 Parameter Binding"]
+            BATCH_PROCESSOR["📦 Batch Processor<br/>🔄 Parallel Requests<br/>📊 Chunk Size: 50<br/>⏱️ Concurrent: 10"]
+        end
+        
+        subgraph RESPONSE_HANDLER["📥 MANIPULADOR RESPOSTAS"]
+            XML_PARSER["📄 XML Parser<br/>🔍 XPath Queries<br/>🔄 SimpleXML to Array<br/>✅ Schema Validation"]
+            ERROR_HANDLER["❌ Error Handler<br/>🧼 SOAP Faults<br/>🌐 HTTP Errors<br/>📊 Business Logic Errors"]
+        end
+    end
+    
+    subgraph FLOW_CONTROL["🔄 CONTROLE FLUXO"]
+        direction TB
+        
+        subgraph SEQUENCING["📋 SEQUENCIAMENTO"]
+            STEP1["1️⃣ Lista Unidades<br/>📋 listaUorgs<br/>🎯 1 requisição<br/>⏱️ ~5s"]
+            STEP2["2️⃣ Detalhes Unidades<br/>🏢 dadosUorg<br/>🎯 N requisições paralelas<br/>⏱️ ~2min"]
+            STEP3["3️⃣ Lista Servidores<br/>👥 listaServidores<br/>🎯 N requisições paralelas<br/>⏱️ ~5min"]
+            STEP4["4️⃣ Dados Servidores<br/>👤 consulta* (2 tipos)<br/>🎯 M requisições paralelas<br/>⏱️ ~15min"]
+        end
+        
+        subgraph OPTIMIZATION["⚡ OTIMIZAÇÕES"]
+            PARALLEL["🔄 Paralelização<br/>📊 Pool Size: 10<br/>⚡ Async Processing<br/>📦 Batch Grouping"]
+            CACHING["⚡ Cache Strategy<br/>🎫 Token Cache: 55min<br/>📊 Response Cache: 1h<br/>🔄 Invalidation Logic"]
+            FILTERING["🔍 Filtros Inteligentes<br/>📊 Unidades Ativas<br/>👥 Servidores Válidos<br/>📅 Data Modificação"]
+        end
+    end
+
+    %% Fluxos de comunicação
+    OAUTH_ENDPOINT --> TOKEN_VALIDATION
+    TOKEN_VALIDATION --> LISTA_UORGS & DADOS_UORG & LISTA_SERV & DADOS_FUNC & DADOS_PESS
+    
+    THROTTLING & CIRCUIT_BREAKER --> SOAP_SERVICES
+    
+    GUZZLE_CONFIG --> SOAP_ENVELOPE --> XML_PARSER
+    HEADERS_CONFIG --> BATCH_PROCESSOR --> ERROR_HANDLER
+    
+    STEP1 --> STEP2 --> STEP3 --> STEP4
+    PARALLEL & CACHING & FILTERING --> SEQUENCING
+    
+    %% Conexões API
+    LISTA_UORGS -.->|"📊 XML Response"| STEP1
+    DADOS_UORG -.->|"📊 XML Response"| STEP2
+    LISTA_SERV -.->|"📊 XML Response"| STEP3
+    DADOS_FUNC & DADOS_PESS -.->|"📊 XML Response"| STEP4
+    
+    %% Estilos
+    style CONECTAGOV fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
+    style PGD_CLIENT fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    style FLOW_CONTROL fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style AUTH_LAYER fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    style SOAP_SERVICES fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style OPTIMIZATION fill:#e0f2f1,stroke:#00695c,stroke-width:2px

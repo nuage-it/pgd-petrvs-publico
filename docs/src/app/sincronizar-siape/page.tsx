@@ -62,7 +62,6 @@ export default function SincronizarSiapePage() {
 
         <Breadcrumb
           items={[
-            { label: 'Integração SIAPE' },
             { label: 'SincronizarSiapeJob' }
           ]}
         />

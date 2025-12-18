@@ -1,10 +1,10 @@
 /**
  * Returns the base path for assets and links.
- * In production (GitHub Pages), returns '/pgd-petrvs-publico'.
+ * In production, returns '/generated-docs'.
  * In development, returns empty string.
  */
 export function getBasePath(): string {
-  return process.env.NODE_ENV === 'production' ? '/pgd-petrvs-publico' : '';
+  return process.env.NODE_ENV === 'production' ? '/generated-docs' : '';
 }
 
 /**

@@ -1,0 +1,90 @@
+flowchart TB
+    subgraph CONFIG["CONFIGURAÇÕES DO SISTEMA"]
+        direction TB
+
+        subgraph ENV["VARIÁVEIS DE AMBIENTE"]
+            direction TB
+            URL["INTEGRACAO_SIAPE_URL<br/>https://api.conectagov..."]
+            CRED["INTEGRACAO_SIAPE_CONECTAGOV_CHAVE<br/>INTEGRACAO_SIAPE_CONECTAGOV_SENHA"]
+            SYS["INTEGRACAO_SIAPE_CPF<br/>INTEGRACAO_SIAPE_CODORGAO"]
+            PERF["INTEGRACAO_SIAPE_CONECTAGOV_QTD_MAX_REQUISICOES"]
+        end
+
+        subgraph LIMITS["LIMITES E PARÂMETROS"]
+            direction TB
+            REQ["Requisições Paralelas<br/>Padrão: 10 | Máximo: 30"]
+            BATCH["Insert em Lote<br/>Padrão: 1000 registros"]
+            MEM["Memory Limit<br/>-1 (ilimitado)"]
+            QUEUE["Fila Dedicada<br/>siape_queue"]
+        end
+
+        subgraph AUTH["AUTENTICAÇÃO OAUTH2"]
+            direction TB
+            FLOW["Client Credentials Flow"]
+            ENDPOINT["/oauth2/jwt-token"]
+            BEARER["Bearer Token"]
+            EXPIRE["Expira em 59 minutos"]
+            FLOW --> ENDPOINT --> BEARER --> EXPIRE
+        end
+
+        subgraph SOAP["CONFIGURAÇÃO SOAP"]
+            direction TB
+            SISTEMA["siglaSistema: PETRVS<br/>nomeSistema: PETRVS-PGD"]
+            PARAMS["parmExistPag: N<br/>parmTipoVinculo: 0"]
+            HEADERS["Content-Type: application/xml<br/>x-cpf-usuario: {cpf}"]
+        end
+    end
+
+    subgraph MONITORING["MONITORAMENTO"]
+        direction TB
+        
+        subgraph LOGS["LOGS IMPORTANTES"]
+            direction TB
+            START["Job BuscarDadosSiapeJob START"]
+            PROGRESS["Unidades a serem processadas: N<br/>Servidores a serem processadas: M"]
+            TIMING["Tempo total de execução: X segundos"]
+            ERRORS["Erros de requisição/XML"]
+        end
+        
+        subgraph METRICS["MÉTRICAS"]
+            direction TB
+            COUNT["Contadores por etapa"]
+            DURATION["Duração por fase"]
+            SUCCESS["Taxa de sucesso"]
+            BLACKLIST_COUNT["Itens na blacklist"]
+        end
+    end
+
+    subgraph TABLES["ESTRUTURA DE TABELAS"]
+        direction TB
+        
+        subgraph TEMP_TABLES["TEMPORÁRIAS"]
+            direction TB
+            T1["siape_listaUORG<br/>id, response, processado"]
+            T2["siape_dadosUORG<br/>id, codigo, response, data_modificacao"]
+            T3["siape_listaServidores<br/>id, response, processado"]
+            T4["siape_consultaDados*<br/>id, cpf, response, data_modificacao"]
+        end
+        
+        subgraph BLACKLIST_TABLES["BLACKLIST"]
+            direction TB
+            BL1["siape_blacklist_unidades<br/>codigo, operacao, response"]
+            BL2["siape_blacklist_servidores<br/>cpf, operacao, response"]
+        end
+    end
+
+    ENV --> AUTH
+    LIMITS --> SOAP
+    AUTH --> LOGS
+    SOAP --> METRICS
+    LOGS --> TEMP_TABLES
+    METRICS --> BLACKLIST_TABLES
+
+    style ENV fill:#dbeafe,stroke:#0066cc,stroke-width:2px
+    style LIMITS fill:#dcfce7,stroke:#168821,stroke-width:2px
+    style AUTH fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style SOAP fill:#f3e8ff,stroke:#9333ea,stroke-width:2px
+    style LOGS fill:#fff7ed,stroke:#ea580c,stroke-width:2px
+    style METRICS fill:#f0fdf4,stroke:#168821,stroke-width:2px
+    style TEMP_TABLES fill:#fff8e1,stroke:#ffa000,stroke-width:2px
+    style BLACKLIST_TABLES fill:#fef2f2,stroke:#dc2626,stroke-width:2px

@@ -1,0 +1,56 @@
+graph TB
+    subgraph GOVERNO["🏛️ GOVERNO FEDERAL"]
+        direction TB
+        
+        subgraph MGI["📋 MINISTÉRIO DA GESTÃO E INOVAÇÃO"]
+            PGD["🎯 PGD PETRVS<br/>Sistema de Gestão<br/>Programa de Gestão"]
+            SIAPE["👥 SIAPE<br/>Sistema Integrado de<br/>Administração de Pessoal"]
+        end
+        
+        subgraph ORGAOS["🏢 ÓRGÃOS PÚBLICOS"]
+            ORG1["Ministério A"]
+            ORG2["Ministério B"] 
+            ORG3["Autarquia C"]
+            ORGN["... outros"]
+        end
+    end
+    
+    subgraph INTEGRACAO["🔄 INTEGRAÇÃO"]
+        direction TB
+        CONECTA["🌐 ConectaGov<br/>Gateway de Integração<br/>Governo Federal"]
+        
+        subgraph FLUXOS["📊 FLUXOS DE DADOS"]
+            F1["📥 Estrutura Organizacional<br/>Unidades e Hierarquias"]
+            F2["👤 Dados de Servidores<br/>Funcionais e Pessoais"]
+            F3["🔄 Sincronização Bidirecional<br/>Atualizações Periódicas"]
+        end
+    end
+    
+    subgraph USUARIOS["👥 USUÁRIOS FINAIS"]
+        GESTORES["👔 Gestores<br/>Supervisão e Aprovação"]
+        SERVIDORES["👤 Servidores<br/>Registro de Atividades"]
+        ADMIN["⚙️ Administradores<br/>Configuração e Monitoramento"]
+    end
+
+    %% Conexões principais
+    SIAPE -.->|"Fonte Oficial<br/>Dados Governamentais"| CONECTA
+    CONECTA <-->|"API REST/SOAP<br/>OAuth2 + SSL"| PGD
+    
+    %% Fluxos de dados
+    CONECTA --> F1 & F2 & F3
+    F1 & F2 & F3 --> PGD
+    
+    %% Órgãos conectados
+    ORG1 & ORG2 & ORG3 & ORGN -.->|"Dados Organizacionais"| SIAPE
+    
+    %% Usuários do sistema
+    PGD --> GESTORES & SERVIDORES & ADMIN
+    
+    %% Estilos
+    style GOVERNO fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
+    style MGI fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style PGD fill:#e8f5e8,stroke:#388e3c,stroke-width:3px
+    style SIAPE fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style INTEGRACAO fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    style CONECTA fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    style USUARIOS fill:#f1f8e9,stroke:#689f38,stroke-width:2px

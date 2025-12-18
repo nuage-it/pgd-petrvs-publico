@@ -70,7 +70,6 @@ export default function PlanosTrabalho() {
   }, [])
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'Início', href: '/', icon: Home },
     { label: 'Planos de Trabalho', icon: FileText }
   ]
 
