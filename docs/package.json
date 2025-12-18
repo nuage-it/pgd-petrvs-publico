@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run mermaid:build && next dev",
-    "build": "npm run mermaid:build && next build",
+    "dev": "next dev",
+    "dev:full": "npm run mermaid:build && next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "mermaid:build": "node scripts/build-mermaid.js"

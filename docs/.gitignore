@@ -39,6 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Mermaid generated images (regenerated from src/mermaid/*.mmd)
-/public/mermaid/
