@@ -1,0 +1,98 @@
+graph TB
+    subgraph EXTERNA["🌐 CAMADA EXTERNA"]
+        direction TB
+        
+        subgraph API_SIAPE["📡 API SIAPE/CONECTAGOV"]
+            ENDPOINT_AUTH["🔐 /oauth/token<br/>🎫 Autenticação OAuth2<br/>⏱️ Token Temporário"]
+            ENDPOINT_SOAP["🧼 /soap/services<br/>📄 Serviços SOAP<br/>📋 4 Operações Principais"]
+        end
+        
+        subgraph PROTOCOLOS["🔒 PROTOCOLOS"]
+            HTTPS["🔒 HTTPS/TLS 1.3<br/>🛡️ Criptografia Ponta-a-Ponta"]
+            OAUTH2["🎫 OAuth 2.0<br/>🔑 Client Credentials<br/>⏱️ Token Refresh"]
+            SOAP["🧼 SOAP 1.2<br/>📄 XML Envelope<br/>🎯 RPC Style"]
+        end
+    end
+    
+    subgraph APLICACAO["⚙️ CAMADA APLICAÇÃO"]
+        direction TB
+        
+        subgraph JOBS["🔄 JOBS AUTOMATIZADOS"]
+            JOB_BUSCAR["📥 BuscarDadosSiapeJob<br/>⏰ Agendamento Configurable<br/>🔄 4 Etapas Sequenciais"]
+            JOB_SYNC["🔄 SincronizarSiapeJob<br/>📊 Parse XMLs<br/>🎯 3 Fases Sincronização"]
+        end
+        
+        subgraph SERVICES["🛠️ SERVIÇOS"]
+            AUTH_SERVICE["🔐 AuthenticationService<br/>🎫 Gestão Tokens<br/>⏱️ Cache Inteligente"]
+            XML_SERVICE["📄 XmlProcessingService<br/>🔍 XPath Queries<br/>🔄 Array Conversion"]
+            HTTP_SERVICE["🌐 HttpClientService<br/>📡 Requisições Paralelas<br/>🔄 Retry Logic"]
+        end
+        
+        subgraph CLASSES["📦 CLASSES PRINCIPAIS"]
+            ABSTRACT_BASE["🏗️ BuscarDadosSiape<br/><<abstract>><br/>🔧 Métodos Comuns"]
+            CONCRETE_IMPL["🎯 4 Implementações<br/>📋 Unidades/Servidores<br/>🔄 Especialização"]
+        end
+    end
+    
+    subgraph DADOS["💾 CAMADA DADOS"]
+        direction TB
+        
+        subgraph TEMP_STORAGE["🗃️ ARMAZENAMENTO TEMPORÁRIO"]
+            TEMP_TABLES["📄 5 Tabelas Temporárias<br/>🗂️ XMLs Brutos<br/>⚡ Processamento Rápido"]
+            CACHE_LAYER["⚡ Cache Redis<br/>🎫 Tokens OAuth<br/>📊 Metadados"]
+        end
+        
+        subgraph PROD_STORAGE["🏛️ ARMAZENAMENTO PRODUÇÃO"]
+            CONTROL_TABLES["🎯 Tabelas Controle<br/>📊 integracao_*<br/>🔄 Status Sync"]
+            OFFICIAL_TABLES["🏢 Tabelas Oficiais<br/>👥 unidades/usuarios<br/>📋 Dados Finais"]
+        end
+        
+        subgraph BACKUP["💾 BACKUP E AUDITORIA"]
+            AUDIT_LOG["📋 Log Auditoria<br/>🕐 Timestamp<br/>👤 Rastreabilidade"]
+            BACKUP_TABLES["💾 Backup Incremental<br/>🔄 Versionamento<br/>🛡️ Recuperação"]
+        end
+    end
+    
+    subgraph INFRAESTRUTURA["🖥️ CAMADA INFRAESTRUTURA"]
+        direction TB
+        
+        subgraph RUNTIME["⚡ AMBIENTE EXECUÇÃO"]
+            PHP_FPM["🐘 PHP 8.2+ FPM<br/>⚙️ Memory Limit -1<br/>⏱️ Max Execution Time"]
+            LARAVEL["🎨 Laravel Framework<br/>🔄 Queue System<br/>📊 Eloquent ORM"]
+        end
+        
+        subgraph DATABASE["🗄️ BANCO DE DADOS"]
+            MYSQL["🐬 MySQL 8.0+<br/>🔄 InnoDB Engine<br/>📊 Transações ACID"]
+            REDIS["⚡ Redis Cache<br/>🎫 Session Store<br/>📊 Queue Backend"]
+        end
+        
+        subgraph MONITORING["📊 MONITORAMENTO"]
+            LOGS["📋 Application Logs<br/>🔍 Debug/Info/Error<br/>📊 Structured JSON"]
+            METRICS["📈 Performance Metrics<br/>⏱️ Response Time<br/>📊 Success Rate"]
+        end
+    end
+
+    %% Conexões entre camadas
+    ENDPOINT_AUTH & ENDPOINT_SOAP --> AUTH_SERVICE & HTTP_SERVICE
+    HTTPS & OAUTH2 & SOAP --> JOB_BUSCAR & JOB_SYNC
+    
+    AUTH_SERVICE --> CACHE_LAYER
+    XML_SERVICE --> TEMP_TABLES
+    HTTP_SERVICE --> AUDIT_LOG
+    
+    JOB_BUSCAR --> ABSTRACT_BASE --> CONCRETE_IMPL
+    JOB_SYNC --> TEMP_TABLES --> CONTROL_TABLES & OFFICIAL_TABLES
+    
+    TEMP_TABLES & CONTROL_TABLES & OFFICIAL_TABLES --> MYSQL
+    CACHE_LAYER --> REDIS
+    
+    LARAVEL --> PHP_FPM
+    LOGS & METRICS --> MONITORING
+    
+    %% Estilos
+    style EXTERNA fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style APLICACAO fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    style DADOS fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style INFRAESTRUTURA fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    style JOB_BUSCAR fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    style JOB_SYNC fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px

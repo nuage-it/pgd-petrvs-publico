@@ -1,0 +1,76 @@
+flowchart TB
+    subgraph OTIMIZACOES["MECANISMOS DE OTIMIZAÇÃO"]
+        direction TB
+
+        subgraph PARALLEL["1. REQUISIÇÕES PARALELAS"]
+            direction TB
+            CURL["curl_multi_init()"]
+            LOTES["Lotes de 10-30 requisições"]
+            SLEEP["sleep(1) entre iterações"]
+            CURL --> LOTES --> SLEEP
+        end
+
+        subgraph FILTER["2. FILTRAGEM INTELIGENTE"]
+            direction TB
+            CHECK_DATE["Compara dataUltimaTransacao<br/>SIAPE vs BD local"]
+            SKIP["Skip se não modificado"]
+            PROCESS["Processa apenas modificados"]
+            CHECK_DATE --> SKIP
+            CHECK_DATE --> PROCESS
+        end
+
+        subgraph BLACKLIST["3. BLACKLIST"]
+            direction TB
+            ERROR["SOAP Fault 0002<br/>(não encontrado)"]
+            ADD_BL["Adiciona à blacklist"]
+            IGNORE["Ignora em próximas execuções"]
+            ERROR --> ADD_BL --> IGNORE
+        end
+
+        subgraph CACHE["4. CACHE DE TOKEN"]
+            direction TB
+            TOKEN["Token OAuth2"]
+            CACHE_59["Cache por 59 minutos"]
+            REUSE["Reutiliza token válido"]
+            TOKEN --> CACHE_59 --> REUSE
+        end
+
+        subgraph BATCH["5. PROCESSAMENTO EM LOTES"]
+            direction TB
+            COLLECT["Coleta 1000 registros"]
+            INSERT["INSERT em lote"]
+            REDUCE["Reduz overhead DB"]
+            COLLECT --> INSERT --> REDUCE
+        end
+    end
+
+    subgraph BENEFICIOS["BENEFÍCIOS"]
+        direction TB
+        B1["⚡ 90% menos tempo<br/>(requisições paralelas)"]
+        B2["📉 70-90% menos requisições<br/>(filtragem inteligente)"]
+        B3["🚫 Evita requisições que falham<br/>(blacklist)"]
+        B4["🔑 Menos autenticações<br/>(cache token)"]
+        B5["💾 Menos overhead DB<br/>(lotes)"]
+    end
+
+    subgraph EXEMPLO["EXEMPLO PRÁTICO"]
+        direction TB
+        FIRST["1ª Execução: 10.401 requisições<br/>15-20 minutos"]
+        NEXT["Próximas: ~1.221 requisições<br/>2-5 minutos"]
+        REDUCTION["📊 Redução de 75-80%"]
+        FIRST --> NEXT --> REDUCTION
+    end
+
+    PARALLEL --> B1
+    FILTER --> B2
+    BLACKLIST --> B3
+    CACHE --> B4
+    BATCH --> B5
+
+    style PARALLEL fill:#dbeafe,stroke:#0066cc,stroke-width:2px
+    style FILTER fill:#dcfce7,stroke:#168821,stroke-width:2px
+    style BLACKLIST fill:#fef2f2,stroke:#dc2626,stroke-width:2px
+    style CACHE fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style BATCH fill:#f3e8ff,stroke:#9333ea,stroke-width:2px
+    style BENEFICIOS fill:#f0fdf4,stroke:#168821,stroke-width:2px
+    style EXEMPLO fill:#fff7ed,stroke:#ea580c,stroke-width:2px

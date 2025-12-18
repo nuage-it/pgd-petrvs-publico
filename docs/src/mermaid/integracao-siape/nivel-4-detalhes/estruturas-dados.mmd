@@ -1,0 +1,177 @@
+erDiagram
+    %% TABELAS TEMPORÁRIAS - Armazenamento XMLs SIAPE
+    SIAPE_LISTA_UORG {
+        uuid id PK "Identificador único"
+        text response "XML completo resposta SIAPE"
+        int processado "0=pendente, 1=processado"
+        timestamp created_at "Data criação"
+        timestamp updated_at "Data atualização"
+    }
+    
+    SIAPE_DADOS_UORG {
+        uuid id PK "Identificador único"
+        varchar codigo "Código UORG SIAPE"
+        text response "XML detalhes unidade"
+        date data_modificacao "Data modificação SIAPE"
+        int processado "0=pendente, 1=processado"
+        timestamp created_at "Data criação"
+        timestamp updated_at "Data atualização"
+    }
+    
+    SIAPE_LISTA_SERVIDORES {
+        uuid id PK "Identificador único"
+        varchar codigo_uorg "Código unidade"
+        text response "XML lista CPFs"
+        int processado "0=pendente, 1=processado"
+        timestamp created_at "Data criação"
+        timestamp updated_at "Data atualização"
+    }
+    
+    SIAPE_CONSULTA_DADOS_FUNCIONAIS {
+        uuid id PK "Identificador único"
+        varchar cpf "CPF servidor"
+        text response "XML dados funcionais"
+        date data_modificacao "Data modificação SIAPE"
+        int processado "0=pendente, 1=processado"
+        timestamp created_at "Data criação"
+        timestamp updated_at "Data atualização"
+    }
+    
+    SIAPE_CONSULTA_DADOS_PESSOAIS {
+        uuid id PK "Identificador único"
+        varchar cpf "CPF servidor"
+        text response "XML dados pessoais"
+        date data_modificacao "Data modificação SIAPE"
+        int processado "0=pendente, 1=processado"
+        timestamp created_at "Data criação"
+        timestamp updated_at "Data atualização"
+    }
+    
+    %% TABELAS DE CONTROLE - Gestão Sincronização
+    INTEGRACAO_UNIDADES {
+        uuid id PK "Identificador único"
+        varchar codigo_siape "Código SIAPE unidade"
+        varchar sigla "Sigla unidade"
+        varchar nome "Nome unidade"
+        varchar codigo_pai "Código unidade pai"
+        enum situacao "ATIVA, INATIVA, EXTINTA"
+        date data_criacao "Data criação SIAPE"
+        date data_modificacao "Data modificação SIAPE"
+        timestamp sincronizado_em "Última sincronização"
+        enum status_sincronizacao "PENDENTE, PROCESSANDO, CONCLUIDO, ERRO"
+        text log_sincronizacao "Log detalhado"
+        timestamp created_at "Data criação"
+        timestamp updated_at "Data atualização"
+    }
+    
+    INTEGRACAO_SERVIDORES {
+        uuid id PK "Identificador único"
+        varchar cpf "CPF servidor"
+        varchar nome "Nome completo"
+        varchar email "Email institucional"
+        varchar matricula_siape "Matrícula SIAPE"
+        varchar codigo_uorg "Código unidade lotação"
+        enum situacao_funcional "ATIVO, APOSENTADO, PENSIONISTA, INSTITUIDOR_PENSAO, CEDIDO, REQUISITADO"
+        date data_nascimento "Data nascimento"
+        date data_ingresso_servico_publico "Data ingresso"
+        date data_modificacao "Data modificação SIAPE"
+        timestamp sincronizado_em "Última sincronização"
+        enum status_sincronizacao "PENDENTE, PROCESSANDO, CONCLUIDO, ERRO"
+        text log_sincronizacao "Log detalhado"
+        timestamp created_at "Data criação"
+        timestamp updated_at "Data atualização"
+    }
+    
+    %% TABELAS OFICIAIS - Dados Finais Sistema
+    UNIDADES {
+        uuid id PK "Identificador único PGD"
+        varchar codigo "Código interno PGD"
+        varchar sigla "Sigla unidade"
+        varchar nome "Nome unidade"
+        uuid unidade_pai_id FK "Referência unidade pai"
+        varchar path "Caminho hierárquico"
+        enum situacao "ATIVA, INATIVA"
+        varchar codigo_siape "Código SIAPE (integração)"
+        json dados_siape "Dados adicionais SIAPE"
+        timestamp created_at "Data criação"
+        timestamp updated_at "Data atualização"
+        timestamp deleted_at "Data exclusão (soft delete)"
+    }
+    
+    USUARIOS {
+        uuid id PK "Identificador único PGD"
+        varchar cpf "CPF (único)"
+        varchar nome "Nome completo"
+        varchar email "Email principal"
+        varchar matricula "Matrícula funcional"
+        enum situacao "ATIVO, INATIVO, SUSPENSO"
+        varchar codigo_siape "Matrícula SIAPE"
+        json dados_siape "Dados SIAPE completos"
+        timestamp email_verified_at "Email verificado"
+        varchar password "Senha hash"
+        varchar remember_token "Token lembrar"
+        timestamp created_at "Data criação"
+        timestamp updated_at "Data atualização"
+        timestamp deleted_at "Data exclusão (soft delete)"
+    }
+    
+    UNIDADES_INTEGRANTES {
+        uuid id PK "Identificador único"
+        uuid unidade_id FK "Referência unidade"
+        uuid usuario_id FK "Referência usuário"
+        enum tipo_vinculo "LOTACAO, EXERCICIO, CHEFIA, SUBSTITUTO"
+        date data_inicio "Data início vínculo"
+        date data_fim "Data fim vínculo"
+        enum situacao "ATIVO, INATIVO"
+        json atribuicoes "Atribuições específicas"
+        timestamp created_at "Data criação"
+        timestamp updated_at "Data atualização"
+    }
+    
+    %% TABELAS AUXILIARES - Logs e Auditoria
+    LOGS_INTEGRACAO_SIAPE {
+        uuid id PK "Identificador único"
+        enum tipo_operacao "BUSCAR_DADOS, SINCRONIZAR, ERRO"
+        enum etapa "LISTA_UORG, DADOS_UORG, LISTA_SERV, DADOS_SERV, PARSE, SYNC"
+        varchar tenant_id "Identificador tenant"
+        int registros_processados "Quantidade processada"
+        int registros_erro "Quantidade com erro"
+        decimal tempo_execucao "Tempo execução (segundos)"
+        json detalhes "Detalhes operação"
+        text mensagem "Mensagem log"
+        enum nivel "DEBUG, INFO, WARNING, ERROR, CRITICAL"
+        timestamp created_at "Data criação"
+    }
+    
+    CONFIG_INTEGRACAO_SIAPE {
+        uuid id PK "Identificador único"
+        varchar tenant_id "Identificador tenant"
+        varchar chave "Chave configuração"
+        text valor "Valor configuração"
+        enum tipo "STRING, INTEGER, BOOLEAN, JSON"
+        text descricao "Descrição configuração"
+        boolean ativo "Configuração ativa"
+        timestamp created_at "Data criação"
+        timestamp updated_at "Data atualização"
+    }
+
+    %% RELACIONAMENTOS
+    
+    %% Hierarquia Unidades
+    UNIDADES ||--o{ UNIDADES : "unidade_pai_id"
+    
+    %% Vínculos Usuário-Unidade
+    UNIDADES ||--o{ UNIDADES_INTEGRANTES : "unidade_id"
+    USUARIOS ||--o{ UNIDADES_INTEGRANTES : "usuario_id"
+    
+    %% Controle Integração
+    INTEGRACAO_UNIDADES ||--o| UNIDADES : "codigo_siape"
+    INTEGRACAO_SERVIDORES ||--o| USUARIOS : "cpf"
+    
+    %% Dados Temporários para Controle
+    SIAPE_DADOS_UORG ||--o| INTEGRACAO_UNIDADES : "codigo"
+    SIAPE_CONSULTA_DADOS_FUNCIONAIS ||--o| INTEGRACAO_SERVIDORES : "cpf"
+    SIAPE_CONSULTA_DADOS_PESSOAIS ||--o| INTEGRACAO_SERVIDORES : "cpf"
+    
+    %% Logs por Tenant
+    CONFIG_INTEGRACAO_SIAPE ||--o{ LOGS_INTEGRACAO_SIAPE : "tenant_id"

@@ -1,0 +1,122 @@
+flowchart TB
+    subgraph TRIGGER["🚀 GATILHOS DE EXECUÇÃO"]
+        direction LR
+        CRON["⏰ Agendamento Cron<br/>📅 Configurável<br/>🔄 Periodicidade"]
+        MANUAL["👤 Execução Manual<br/>🎯 Comando Artisan<br/>⚡ Imediata"]
+        EVENT["📡 Evento Sistema<br/>🔄 Webhook<br/>📊 Condicional"]
+    end
+    
+    subgraph PREPARACAO["🔧 FASE PREPARAÇÃO"]
+        direction TB
+        
+        subgraph CONFIG["⚙️ CONFIGURAÇÃO"]
+            LOAD_CONFIG["📋 Carregar Config<br/>🔑 Credenciais OAuth<br/>🌐 URLs Endpoints<br/>⚙️ Parâmetros Sistema"]
+            VALIDATE_CONFIG["✅ Validar Config<br/>🔍 Verificar Credenciais<br/>🌐 Testar Conectividade<br/>📊 Verificar Permissões"]
+        end
+        
+        subgraph RESOURCES["💾 RECURSOS"]
+            MEMORY_SETUP["🧠 Memory Setup<br/>📊 ini_set('memory_limit', '-1')<br/>⏱️ set_time_limit(0)<br/>🔄 gc_enable()"]
+            DB_PREPARE["🗄️ Preparar BD<br/>🔄 Verificar Conexões<br/>📊 Limpar Logs Antigos<br/>🗃️ Preparar Temp Tables"]
+        end
+    end
+    
+    subgraph EXECUCAO["🔄 FASE EXECUÇÃO"]
+        direction TB
+        
+        subgraph ETAPA1["1️⃣ LISTA UNIDADES"]
+            E1_AUTH["🔐 Obter Token OAuth<br/>🎫 Client Credentials<br/>⏱️ Cache 55min"]
+            E1_REQUEST["📡 Requisição listaUorgs<br/>🧼 SOAP Request<br/>📄 XML Response"]
+            E1_STORE["💾 Armazenar XML<br/>🗃️ siape_listaUORG<br/>🔄 TRUNCATE + INSERT"]
+        end
+        
+        subgraph ETAPA2["2️⃣ DETALHES UNIDADES"]
+            E2_PARSE["📄 Parse Lista XML<br/>🔍 XPath Queries<br/>📊 Extrair Códigos"]
+            E2_FILTER["🔍 Filtrar Unidades<br/>✅ Ativas Apenas<br/>📊 Critérios Negócio"]
+            E2_PARALLEL["🔄 Requisições Paralelas<br/>📦 Lotes de 50<br/>⚡ Pool 10 threads"]
+            E2_STORE["💾 Armazenar XMLs<br/>🗃️ siape_dadosUORG<br/>📦 Batch INSERT"]
+        end
+        
+        subgraph ETAPA3["3️⃣ LISTA SERVIDORES"]
+            E3_UNITS["🏢 Processar Unidades<br/>📋 Unidades Válidas<br/>🔄 Loop Sequencial"]
+            E3_PARALLEL["🔄 Requisições Paralelas<br/>📦 Por Unidade<br/>⚡ Async Processing"]
+            E3_STORE["💾 Armazenar XMLs<br/>🗃️ siape_listaServidores<br/>📦 Batch INSERT"]
+        end
+        
+        subgraph ETAPA4["4️⃣ DADOS SERVIDORES"]
+            E4_EXTRACT["📄 Extrair CPFs<br/>🔍 Parse XMLs<br/>🎯 CPFs Únicos"]
+            E4_FILTER["🔍 Filtrar CPFs<br/>✅ Válidos Apenas<br/>📊 Critérios Negócio"]
+            E4A_FUNC["💼 Dados Funcionais<br/>🔄 Paralelo<br/>📦 Lotes 100"]
+            E4B_PESS["👤 Dados Pessoais<br/>🔄 Paralelo<br/>📦 Lotes 100"]
+            E4_STORE["💾 Armazenar XMLs<br/>🗃️ 2 Tabelas Temp<br/>📦 Batch INSERT"]
+        end
+    end
+    
+    subgraph SINCRONIZACAO["🔄 FASE SINCRONIZAÇÃO"]
+        direction TB
+        
+        subgraph PARSE_PHASE["📄 FASE PARSE"]
+            PARSE_UNITS["🏢 Parse Unidades<br/>📄 XML → Array<br/>🔍 XPath Processing"]
+            PARSE_SERVERS["👥 Parse Servidores<br/>📄 XML → Array<br/>🔍 XPath Processing"]
+            VALIDATE_DATA["✅ Validar Dados<br/>🔍 Schema Check<br/>📊 Business Rules"]
+        end
+        
+        subgraph SYNC_PHASE["🔄 FASE SYNC"]
+            SYNC_CONTROL["🎯 Sync Controle<br/>📊 integracao_*<br/>🔄 Status Tracking"]
+            SYNC_UNITS["🏢 Sync Unidades<br/>📊 unidades<br/>🔄 UPSERT Logic"]
+            SYNC_USERS["👤 Sync Usuários<br/>📊 usuarios<br/>🔄 UPSERT Logic"]
+            SYNC_LINKS["🔗 Sync Vínculos<br/>📊 unidades_integrantes<br/>🔄 Relationship Logic"]
+        end
+        
+        subgraph CLEANUP_PHASE["🧹 FASE LIMPEZA"]
+            CLEANUP_TEMP["🗃️ Limpar Temporárias<br/>🗑️ DROP Temp Tables<br/>📊 Manter Logs"]
+            UPDATE_STATUS["📊 Atualizar Status<br/>✅ Marcar Processado<br/>📅 Timestamp Final"]
+        end
+    end
+    
+    subgraph FINALIZACAO["✅ FASE FINALIZAÇÃO"]
+        direction TB
+        
+        subgraph REPORTING["📊 RELATÓRIOS"]
+            STATS["📈 Estatísticas<br/>📊 Registros Processados<br/>⏱️ Tempo Execução<br/>❌ Erros Encontrados"]
+            AUDIT["📋 Auditoria<br/>👤 Usuário Executor<br/>📅 Timestamp<br/>🔍 Detalhes Operação"]
+        end
+        
+        subgraph NOTIFICATION["📢 NOTIFICAÇÕES"]
+            SUCCESS_NOTIFY["✅ Sucesso<br/>📧 Email Admin<br/>📊 Resumo Execução"]
+            ERROR_NOTIFY["❌ Erro<br/>🚨 Alert Sistema<br/>📋 Log Detalhado"]
+        end
+    end
+
+    %% Fluxo principal
+    CRON & MANUAL & EVENT --> LOAD_CONFIG
+    LOAD_CONFIG --> VALIDATE_CONFIG --> MEMORY_SETUP --> DB_PREPARE
+    
+    DB_PREPARE --> E1_AUTH --> E1_REQUEST --> E1_STORE
+    E1_STORE --> E2_PARSE --> E2_FILTER --> E2_PARALLEL --> E2_STORE
+    E2_STORE --> E3_UNITS --> E3_PARALLEL --> E3_STORE
+    E3_STORE --> E4_EXTRACT --> E4_FILTER
+    E4_FILTER --> E4A_FUNC & E4B_PESS --> E4_STORE
+    
+    E4_STORE --> PARSE_UNITS & PARSE_SERVERS --> VALIDATE_DATA
+    VALIDATE_DATA --> SYNC_CONTROL --> SYNC_UNITS & SYNC_USERS & SYNC_LINKS
+    SYNC_UNITS & SYNC_USERS & SYNC_LINKS --> CLEANUP_TEMP --> UPDATE_STATUS
+    
+    UPDATE_STATUS --> STATS --> AUDIT
+    AUDIT --> SUCCESS_NOTIFY
+    
+    %% Fluxos de erro
+    VALIDATE_CONFIG -.->|"❌ Erro Config"| ERROR_NOTIFY
+    E1_REQUEST -.->|"❌ Erro API"| ERROR_NOTIFY
+    E2_PARALLEL -.->|"❌ Erro Lote"| ERROR_NOTIFY
+    VALIDATE_DATA -.->|"❌ Erro Dados"| ERROR_NOTIFY
+    
+    %% Estilos
+    style TRIGGER fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style PREPARACAO fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style EXECUCAO fill:#e8f5e8,stroke:#388e3c,stroke-width:3px
+    style SINCRONIZACAO fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style FINALIZACAO fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    style ETAPA1 fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    style ETAPA2 fill:#e0f2f1,stroke:#00695c,stroke-width:2px
+    style ETAPA3 fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px
+    style ETAPA4 fill:#fff8e1,stroke:#ffa000,stroke-width:2px

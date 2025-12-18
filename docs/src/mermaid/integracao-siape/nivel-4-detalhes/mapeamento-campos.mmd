@@ -1,0 +1,246 @@
+flowchart TB
+    subgraph SIAPE_XML["📄 ESTRUTURA XML SIAPE"]
+        direction TB
+        
+        subgraph UNIDADES_XML["🏢 XMLs UNIDADES"]
+            LISTA_UORG_XML["📋 listaUorgs Response<br/>
+            &lt;soap:Envelope&gt;<br/>
+            &nbsp;&nbsp;&lt;soap:Body&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;ns2:listaUorgsResponse&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;return&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;uorg&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;codigo&gt;123456&lt;/codigo&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;sigla&gt;UNIT&lt;/sigla&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;nome&gt;Nome Unidade&lt;/nome&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/uorg&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/return&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;/ns2:listaUorgsResponse&gt;<br/>
+            &nbsp;&nbsp;&lt;/soap:Body&gt;<br/>
+            &lt;/soap:Envelope&gt;"]
+            
+            DADOS_UORG_XML["🏢 dadosUorg Response<br/>
+            &lt;soap:Envelope&gt;<br/>
+            &nbsp;&nbsp;&lt;soap:Body&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;ns2:dadosUorgResponse&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;return&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;codigo&gt;123456&lt;/codigo&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;sigla&gt;UNIT&lt;/sigla&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;nome&gt;Nome Completo&lt;/nome&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;codigoPai&gt;123000&lt;/codigoPai&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;situacao&gt;ATIVA&lt;/situacao&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dataCriacao&gt;2020-01-01&lt;/dataCriacao&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dataModificacao&gt;2024-01-01&lt;/dataModificacao&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/return&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;/ns2:dadosUorgResponse&gt;<br/>
+            &nbsp;&nbsp;&lt;/soap:Body&gt;<br/>
+            &lt;/soap:Envelope&gt;"]
+        end
+        
+        subgraph SERVIDORES_XML["👥 XMLs SERVIDORES"]
+            LISTA_SERV_XML["👥 listaServidores Response<br/>
+            &lt;soap:Envelope&gt;<br/>
+            &nbsp;&nbsp;&lt;soap:Body&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;ns2:listaServidoresResponse&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;return&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;servidor&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;cpf&gt;12345678901&lt;/cpf&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;nome&gt;Nome Servidor&lt;/nome&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/servidor&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/return&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;/ns2:listaServidoresResponse&gt;<br/>
+            &nbsp;&nbsp;&lt;/soap:Body&gt;<br/>
+            &lt;/soap:Envelope&gt;"]
+            
+            DADOS_FUNC_XML["💼 consultaDadosFuncionais<br/>
+            &lt;soap:Envelope&gt;<br/>
+            &nbsp;&nbsp;&lt;soap:Body&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;ns2:consultaDadosFuncionaisResponse&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;return&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;cpf&gt;12345678901&lt;/cpf&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;matriculaSiape&gt;1234567&lt;/matriculaSiape&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;codigoUorgLotacao&gt;123456&lt;/codigoUorgLotacao&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;situacaoFuncional&gt;ATIVO&lt;/situacaoFuncional&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dataIngressoServicoPublico&gt;2020-01-01&lt;/dataIngressoServicoPublico&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dataModificacao&gt;2024-01-01&lt;/dataModificacao&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/return&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;/ns2:consultaDadosFuncionaisResponse&gt;<br/>
+            &nbsp;&nbsp;&lt;/soap:Body&gt;<br/>
+            &lt;/soap:Envelope&gt;"]
+            
+            DADOS_PESS_XML["👤 consultaDadosPessoais<br/>
+            &lt;soap:Envelope&gt;<br/>
+            &nbsp;&nbsp;&lt;soap:Body&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;ns2:consultaDadosPessoaisResponse&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;return&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;cpf&gt;12345678901&lt;/cpf&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;nome&gt;Nome Completo&lt;/nome&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;email&gt;email@gov.br&lt;/email&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dataNascimento&gt;1980-01-01&lt;/dataNascimento&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dataModificacao&gt;2024-01-01&lt;/dataModificacao&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/return&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;/ns2:consultaDadosPessoaisResponse&gt;<br/>
+            &nbsp;&nbsp;&lt;/soap:Body&gt;<br/>
+            &lt;/soap:Envelope&gt;"]
+        end
+    end
+    
+    subgraph PROCESSAMENTO["🔄 PROCESSAMENTO"]
+        direction TB
+        
+        subgraph XPATH_QUERIES["🔍 XPATH QUERIES"]
+            XPATH_UNIDADES["🏢 XPath Unidades<br/>
+            //return/uorg → Array<br/>
+            ./codigo → string<br/>
+            ./sigla → string<br/>
+            ./nome → string<br/>
+            ./codigoPai → string<br/>
+            ./situacao → enum<br/>
+            ./dataCriacao → date<br/>
+            ./dataModificacao → date"]
+            
+            XPATH_SERVIDORES["👥 XPath Servidores<br/>
+            //return/servidor → Array<br/>
+            ./cpf → string<br/>
+            ./nome → string<br/>
+            ./matriculaSiape → string<br/>
+            ./codigoUorgLotacao → string<br/>
+            ./situacaoFuncional → enum<br/>
+            ./email → string<br/>
+            ./dataNascimento → date<br/>
+            ./dataIngressoServicoPublico → date<br/>
+            ./dataModificacao → date"]
+        end
+        
+        subgraph TRANSFORMACOES["🔄 TRANSFORMAÇÕES"]
+            NORMALIZE_DATA["📊 Normalização<br/>
+            • Trim strings<br/>
+            • Uppercase enums<br/>
+            • Format dates (Y-m-d)<br/>
+            • Validate CPF<br/>
+            • Clean special chars<br/>
+            • Null empty strings"]
+            
+            VALIDATE_BUSINESS["✅ Validação Negócio<br/>
+            • CPF válido (11 dígitos)<br/>
+            • Email formato válido<br/>
+            • Datas não futuras<br/>
+            • Códigos UORG numéricos<br/>
+            • Situações permitidas<br/>
+            • Hierarquia consistente"]
+        end
+    end
+    
+    subgraph PGD_TABLES["🎯 TABELAS PGD"]
+        direction TB
+        
+        subgraph UNIDADES_MAPPING["🏢 MAPEAMENTO UNIDADES"]
+            UNIDADES_FIELDS["📋 Campos Unidades<br/>
+            <b>PGD</b> ← <b>SIAPE XML</b><br/>
+            id ← UUID gerado<br/>
+            codigo ← codigo (SIAPE)<br/>
+            sigla ← sigla<br/>
+            nome ← nome<br/>
+            unidade_pai_id ← lookup(codigoPai)<br/>
+            path ← hierarquia calculada<br/>
+            situacao ← situacao (ATIVA/INATIVA)<br/>
+            codigo_siape ← codigo<br/>
+            dados_siape ← JSON completo<br/>
+            created_at ← NOW()<br/>
+            updated_at ← dataModificacao"]
+        end
+        
+        subgraph USUARIOS_MAPPING["👤 MAPEAMENTO USUÁRIOS"]
+            USUARIOS_FIELDS["📋 Campos Usuários<br/>
+            <b>PGD</b> ← <b>SIAPE XML</b><br/>
+            id ← UUID gerado<br/>
+            cpf ← cpf (único)<br/>
+            nome ← nome<br/>
+            email ← email<br/>
+            matricula ← matriculaSiape<br/>
+            situacao ← situacaoFuncional mapped<br/>
+            codigo_siape ← matriculaSiape<br/>
+            dados_siape ← JSON merge(func+pess)<br/>
+            password ← Hash::make(cpf)<br/>
+            created_at ← NOW()<br/>
+            updated_at ← dataModificacao"]
+        end
+        
+        subgraph VINCULOS_MAPPING["🔗 MAPEAMENTO VÍNCULOS"]
+            VINCULOS_FIELDS["📋 Campos Vínculos<br/>
+            <b>PGD</b> ← <b>SIAPE XML</b><br/>
+            id ← UUID gerado<br/>
+            unidade_id ← lookup(codigoUorgLotacao)<br/>
+            usuario_id ← lookup(cpf)<br/>
+            tipo_vinculo ← 'LOTACAO'<br/>
+            data_inicio ← dataIngressoServicoPublico<br/>
+            data_fim ← NULL (ativo)<br/>
+            situacao ← situacaoFuncional mapped<br/>
+            atribuicoes ← JSON dados funcionais<br/>
+            created_at ← NOW()<br/>
+            updated_at ← dataModificacao"]
+        end
+    end
+    
+    subgraph REGRAS_NEGOCIO["📊 REGRAS DE NEGÓCIO"]
+        direction TB
+        
+        subgraph FILTROS["🔍 FILTROS APLICADOS"]
+            FILTRO_UNIDADES["🏢 Filtros Unidades<br/>
+            ✅ situacao = 'ATIVA'<br/>
+            ✅ codigo numérico válido<br/>
+            ✅ sigla não vazia<br/>
+            ✅ nome não vazio<br/>
+            ❌ unidades extintas<br/>
+            ❌ códigos inválidos"]
+            
+            FILTRO_SERVIDORES["👤 Filtros Servidores<br/>
+            ✅ situacaoFuncional IN ('ATIVO', 'CEDIDO', 'REQUISITADO')<br/>
+            ✅ CPF válido (11 dígitos)<br/>
+            ✅ matriculaSiape não vazia<br/>
+            ✅ codigoUorgLotacao existe<br/>
+            ❌ aposentados/pensionistas<br/>
+            ❌ CPFs inválidos<br/>
+            ❌ sem lotação"]
+        end
+        
+        subgraph MAPEAMENTOS["🔄 MAPEAMENTOS ENUM"]
+            SITUACAO_UNIDADE["🏢 Situação Unidade<br/>
+            SIAPE → PGD<br/>
+            'ATIVA' → 'ATIVA'<br/>
+            'INATIVA' → 'INATIVA'<br/>
+            'EXTINTA' → 'INATIVA'<br/>
+            NULL → 'INATIVA'"]
+            
+            SITUACAO_SERVIDOR["👤 Situação Servidor<br/>
+            SIAPE → PGD<br/>
+            'ATIVO' → 'ATIVO'<br/>
+            'CEDIDO' → 'ATIVO'<br/>
+            'REQUISITADO' → 'ATIVO'<br/>
+            'APOSENTADO' → 'INATIVO'<br/>
+            'PENSIONISTA' → 'INATIVO'<br/>
+            outros → 'INATIVO'"]
+        end
+    end
+
+    %% Fluxos de mapeamento
+    LISTA_UORG_XML --> XPATH_UNIDADES
+    DADOS_UORG_XML --> XPATH_UNIDADES
+    LISTA_SERV_XML --> XPATH_SERVIDORES
+    DADOS_FUNC_XML --> XPATH_SERVIDORES
+    DADOS_PESS_XML --> XPATH_SERVIDORES
+    
+    XPATH_UNIDADES --> NORMALIZE_DATA
+    XPATH_SERVIDORES --> NORMALIZE_DATA
+    NORMALIZE_DATA --> VALIDATE_BUSINESS
+    
+    VALIDATE_BUSINESS --> FILTRO_UNIDADES & FILTRO_SERVIDORES
+    FILTRO_UNIDADES --> SITUACAO_UNIDADE --> UNIDADES_FIELDS
+    FILTRO_SERVIDORES --> SITUACAO_SERVIDOR --> USUARIOS_FIELDS & VINCULOS_FIELDS
+    
+    %% Estilos
+    style SIAPE_XML fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style PROCESSAMENTO fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style PGD_TABLES fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    style REGRAS_NEGOCIO fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    style XPATH_QUERIES fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style TRANSFORMACOES fill:#ffebee,stroke:#d32f2f,stroke-width:2px

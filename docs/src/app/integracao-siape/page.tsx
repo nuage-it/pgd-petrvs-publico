@@ -82,7 +82,6 @@ export default function IntegracaoSiape() {
   }, [])
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'Início', href: '/', icon: Home },
     { label: 'Integração SIAPE', icon: Database }
   ]
 
@@ -98,30 +97,148 @@ export default function IntegracaoSiape() {
 
         {/* Título principal */}
         <div className="mb-8 avoid-break">
-          <SectionTitle level={1}>Fluxo de Integração SIAPE</SectionTitle>
+          <SectionTitle level={1}>Integração SIAPE - Documentação Técnica</SectionTitle>
           <p className="text-lg text-gray-700">
-            Documentação técnica do BuscarDadosSiapeJob - Coleta de dados do SIAPE via ConectaGov
+            Documentação hierárquica completa da integração PGD Petrvs com SIAPE via ConectaGov
           </p>
+          <div className="mt-4 p-4 rounded-lg bg-govbr-blue-50 border border-govbr-blue-600">
+            <h3 className="font-semibold mb-2 text-govbr-blue-600">📋 Estrutura da Documentação</h3>
+            <div className="grid md:grid-cols-4 gap-3 text-sm">
+              <div className="text-center">
+                <div className="font-semibold text-govbr-blue-600">Nível 1</div>
+                <div className="text-xs text-gray-600">Contexto Geral</div>
+              </div>
+              <div className="text-center">
+                <div className="font-semibold text-govbr-blue-600">Nível 2</div>
+                <div className="text-xs text-gray-600">Arquitetura</div>
+              </div>
+              <div className="text-center">
+                <div className="font-semibold text-govbr-blue-600">Nível 3</div>
+                <div className="text-xs text-gray-600">Processos</div>
+              </div>
+              <div className="text-center">
+                <div className="font-semibold text-govbr-blue-600">Nível 4</div>
+                <div className="text-xs text-gray-600">Detalhes Técnicos</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Visão Geral */}
-        <WhiteCard className="avoid-break">
-          <SectionTitle icon={Database}>Visão Geral</SectionTitle>
-          <p className="mb-4 text-gray-700">
-            O <strong>BuscarDadosSiapeJob</strong> é responsável por coletar dados do SIAPE via ConectaGov e
-            armazená-los em tabelas temporárias para posterior processamento. Este job executa 4 etapas sequenciais
-            de coleta de dados.
-          </p>
-          <InfoBox variant="warning" icon={Activity} title="IMPORTANTE">
-            Este job apenas <strong>coleta</strong> os dados do SIAPE. O processamento e persistência nas tabelas
-            definitivas (usuarios, unidades) é feito pelo <strong>SincronizarSiapeJob</strong>.
-          </InfoBox>
-        </WhiteCard>
+        {/* NÍVEL 1: CONTEXTO GERAL */}
+        <div className="page-break">
+          <SectionTitle level={2} className="text-govbr-blue-600">📋 NÍVEL 1: CONTEXTO GERAL</SectionTitle>
+          
+          {/* Contexto do Sistema */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={Database}>Contexto do Sistema PGD-SIAPE</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Visão geral da integração entre o Sistema PGD Petrvs e o SIAPE no contexto do Governo Federal.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-1-contexto/sistema-contexto.png" alt="Contexto geral do sistema PGD-SIAPE" className="w-full rounded-lg border border-gray-200" />
+            </div>
+            <InfoBox variant="info" icon={Activity} title="INTEGRAÇÃO GOVERNAMENTAL">
+              O PGD Petrvs integra-se com o SIAPE através do ConectaGov, garantindo dados oficiais e atualizados
+              para o Programa de Gestão e Desempenho dos órgãos públicos federais.
+            </InfoBox>
+          </WhiteCard>
 
-        {/* Pipeline Completo */}
-        <WhiteCard className="avoid-break">
-          <SectionTitle level={2}>Pipeline Completo de Sincronização</SectionTitle>
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
+          {/* Atores Principais */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={User}>Atores e Responsabilidades</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Mapeamento completo dos atores envolvidos na integração e suas responsabilidades.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-1-contexto/atores-principais.png" alt="Atores principais da integração" className="w-full rounded-lg border border-gray-200" />
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-lg bg-blue-50 border border-govbr-blue-600">
+                <h3 className="font-semibold mb-2 text-govbr-blue-600">🌐 Externos</h3>
+                <ul className="text-sm space-y-1 text-gray-700">
+                  <li>• MGI/SIAPE (fonte oficial)</li>
+                  <li>• ConectaGov (gateway)</li>
+                  <li>• Órgãos públicos</li>
+                </ul>
+              </div>
+              <div className="p-4 rounded-lg bg-green-50 border border-govbr-green-700">
+                <h3 className="font-semibold mb-2 text-govbr-green-700">⚙️ Sistema PGD</h3>
+                <ul className="text-sm space-y-1 text-gray-700">
+                  <li>• Módulo integração</li>
+                  <li>• Módulo gestão</li>
+                  <li>• Camada de dados</li>
+                </ul>
+              </div>
+              <div className="p-4 rounded-lg bg-orange-50 border border-orange-500">
+                <h3 className="font-semibold mb-2 text-orange-600">👥 Usuários</h3>
+                <ul className="text-sm space-y-1 text-gray-700">
+                  <li>• Gestores e chefias</li>
+                  <li>• Servidores públicos</li>
+                  <li>• Administradores</li>
+                </ul>
+              </div>
+            </div>
+          </WhiteCard>
+        </div>
+
+        {/* NÍVEL 2: ARQUITETURA */}
+        <div className="page-break">
+          <SectionTitle level={2} className="text-govbr-green-700">⚙️ NÍVEL 2: ARQUITETURA TÉCNICA</SectionTitle>
+          
+          {/* Componentes Técnicos */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={Layers}>Componentes Técnicos</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Arquitetura em camadas da integração SIAPE com detalhamento de componentes técnicos.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-2-arquitetura/componentes-tecnicos.png" alt="Componentes técnicos da arquitetura" className="w-full rounded-lg border border-gray-200" />
+            </div>
+            <div className="grid md:grid-cols-4 gap-4">
+              <div className="p-3 rounded-lg bg-blue-50 border border-govbr-blue-600 text-center">
+                <h4 className="font-semibold text-govbr-blue-600 mb-2">🌐 Externa</h4>
+                <p className="text-xs text-gray-600">API SIAPE, Protocolos</p>
+              </div>
+              <div className="p-3 rounded-lg bg-green-50 border border-govbr-green-700 text-center">
+                <h4 className="font-semibold text-govbr-green-700 mb-2">⚙️ Aplicação</h4>
+                <p className="text-xs text-gray-600">Jobs, Services, Classes</p>
+              </div>
+              <div className="p-3 rounded-lg bg-orange-50 border border-orange-500 text-center">
+                <h4 className="font-semibold text-orange-600 mb-2">💾 Dados</h4>
+                <p className="text-xs text-gray-600">Temp, Produção, Backup</p>
+              </div>
+              <div className="p-3 rounded-lg bg-purple-50 border border-purple-500 text-center">
+                <h4 className="font-semibold text-purple-600 mb-2">🖥️ Infraestrutura</h4>
+                <p className="text-xs text-gray-600">Runtime, BD, Monitoring</p>
+              </div>
+            </div>
+          </WhiteCard>
+
+          {/* APIs e Endpoints */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={Code}>APIs e Endpoints</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Detalhamento completo das APIs ConectaGov/SIAPE e configurações de comunicação.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-2-arquitetura/apis-endpoints.png" alt="APIs e endpoints detalhados" className="w-full rounded-lg border border-gray-200" />
+            </div>
+            <InfoBox variant="warning" icon={Lock} title="SEGURANÇA">
+              Todas as comunicações utilizam HTTPS/TLS 1.3, OAuth 2.0 e controle de taxa para garantir
+              segurança e disponibilidade dos serviços.
+            </InfoBox>
+          </WhiteCard>
+
+          {/* Pipeline Completo */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle level={3}>Pipeline Completo de Sincronização</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Visão geral do fluxo completo desde a API SIAPE até as tabelas definitivas do sistema.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-2-arquitetura/pipeline.png" alt="Pipeline completo de integração SIAPE" className="w-full rounded-lg border border-gray-200" />
+            </div>
+          <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 rounded-lg bg-govbr-blue-50 border-2 border-govbr-blue-600">
               <div className="flex items-center gap-2 mb-3">
                 <Database size={24} className="text-govbr-blue-600" />
@@ -161,18 +278,18 @@ export default function IntegracaoSiape() {
               </div>
             </div>
           </div>
-
-          <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
-            <span className="font-semibold">Coleta de Dados</span>
-            <span className="text-2xl text-govbr-blue-600">→</span>
-            <span className="font-semibold">Processamento e Persistência</span>
-          </div>
         </WhiteCard>
 
-        {/* Arquitetura */}
-        <WhiteCard className="avoid-break">
-          <SectionTitle icon={Layers}>Arquitetura do BuscarDadosSiapeJob</SectionTitle>
-          <div className="grid md:grid-cols-4 gap-4 mb-6">
+          {/* Arquitetura de Classes */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={Layers}>Arquitetura de Classes</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Estrutura de herança e relacionamentos entre as classes do BuscarDadosSiapeJob.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-2-arquitetura/architecture.png" alt="Arquitetura de classes da integração SIAPE" className="w-full rounded-lg border border-gray-200" />
+            </div>
+          <div className="grid md:grid-cols-4 gap-4">
             {[
               { num: 1, title: 'BuscarDadosSiapeUnidades', sub: 'listaUorgs' },
               { num: 2, title: 'BuscarDadosSiapeUnidade', sub: 'dadosUorg' },
@@ -433,9 +550,175 @@ export default function IntegracaoSiape() {
           />
         </WhiteCard>
 
-        {/* Otimizações */}
-        <WhiteCard className="page-break avoid-break">
-          <SectionTitle icon={Zap} iconColor="text-govbr-green-700">Mecanismos de Otimização</SectionTitle>
+        </div>
+
+        {/* NÍVEL 3: PROCESSOS */}
+        <div className="page-break">
+          <SectionTitle level={2} className="text-orange-600">🔄 NÍVEL 3: FLUXOS DE PROCESSO</SectionTitle>
+          
+          {/* Fluxo Completo */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={Activity}>Fluxo Completo de Execução</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Processo completo desde o gatilho inicial até a finalização, incluindo todas as fases.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-3-processos/fluxo-completo.png" alt="Fluxo completo de execução" className="w-full rounded-lg border border-gray-200" />
+            </div>
+            <div className="grid md:grid-cols-5 gap-3">
+              {[
+                { fase: 'Gatilhos', desc: 'Cron, Manual, Evento', color: 'bg-blue-50 border-govbr-blue-600' },
+                { fase: 'Preparação', desc: 'Config, Recursos', color: 'bg-purple-50 border-purple-500' },
+                { fase: 'Execução', desc: '4 Etapas SIAPE', color: 'bg-green-50 border-govbr-green-700' },
+                { fase: 'Sincronização', desc: 'Parse, Sync, Cleanup', color: 'bg-orange-50 border-orange-500' },
+                { fase: 'Finalização', desc: 'Relatórios, Notificações', color: 'bg-pink-50 border-pink-500' }
+              ].map((fase, i) => (
+                <div key={i} className={`p-3 rounded-lg border text-center ${fase.color}`}>
+                  <div className="font-semibold text-sm mb-1">{fase.fase}</div>
+                  <div className="text-xs text-gray-600">{fase.desc}</div>
+                </div>
+              ))}
+            </div>
+          </WhiteCard>
+
+          {/* Tratamento de Erros */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={Zap}>Tratamento de Erros e Recuperação</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Estratégias abrangentes para tratamento de erros, recuperação e monitoramento.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-3-processos/tratamento-erros.png" alt="Tratamento de erros e recuperação" className="w-full rounded-lg border border-gray-200" />
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-lg bg-red-50 border border-red-500">
+                <h4 className="font-semibold text-red-600 mb-2">❌ Tipos de Erro</h4>
+                <ul className="text-sm space-y-1 text-gray-700">
+                  <li>• Rede (timeout, conexão)</li>
+                  <li>• Autenticação (token, credenciais)</li>
+                  <li>• Dados (XML, schema, regras)</li>
+                  <li>• Sistema (memória, BD, disco)</li>
+                </ul>
+              </div>
+              <div className="p-4 rounded-lg bg-green-50 border border-govbr-green-700">
+                <h4 className="font-semibold text-govbr-green-700 mb-2">🛠️ Estratégias</h4>
+                <ul className="text-sm space-y-1 text-gray-700">
+                  <li>• Retry com backoff</li>
+                  <li>• Circuit breaker</li>
+                  <li>• Fallback e recovery</li>
+                  <li>• Checkpoint system</li>
+                </ul>
+              </div>
+              <div className="p-4 rounded-lg bg-blue-50 border border-govbr-blue-600">
+                <h4 className="font-semibold text-govbr-blue-600 mb-2">📊 Monitoramento</h4>
+                <ul className="text-sm space-y-1 text-gray-700">
+                  <li>• Health checks</li>
+                  <li>• Alertas automáticos</li>
+                  <li>• Logs estruturados</li>
+                  <li>• Métricas de performance</li>
+                </ul>
+              </div>
+            </div>
+          </WhiteCard>
+
+          {/* Sequência de Execução */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={GitBranch}>Sequência Detalhada das Etapas</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Fluxo detalhado de execução das 4 etapas sequenciais com interações entre componentes.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-3-processos/sequence.png" alt="Sequência de execução das etapas" className="w-full rounded-lg border border-gray-200" />
+            </div>
+          </WhiteCard>
+
+          {/* Fluxo de Dados */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={Database}>Fluxo de Dados</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Visualização do fluxo de dados desde a API SIAPE até as tabelas definitivas do sistema.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-3-processos/dataflow.png" alt="Fluxo de dados da integração SIAPE" className="w-full rounded-lg border border-gray-200" />
+            </div>
+          </WhiteCard>
+        </div>
+
+        {/* NÍVEL 4: DETALHES TÉCNICOS */}
+        <div className="page-break">
+          <SectionTitle level={2} className="text-purple-600">🔧 NÍVEL 4: DETALHES TÉCNICOS</SectionTitle>
+          
+          {/* Estruturas de Dados */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={Database}>Estruturas de Dados</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Modelo de dados completo com relacionamentos entre tabelas temporárias, controle e produção.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-4-detalhes/estruturas-dados.png" alt="Estruturas de dados detalhadas" className="w-full rounded-lg border border-gray-200" />
+            </div>
+            <div className="grid md:grid-cols-4 gap-4">
+              <div className="p-3 rounded-lg bg-yellow-50 border border-yellow-500 text-center">
+                <h4 className="font-semibold text-yellow-600 mb-2">🗃️ Temporárias</h4>
+                <p className="text-xs text-gray-600">5 tabelas XMLs SIAPE</p>
+              </div>
+              <div className="p-3 rounded-lg bg-blue-50 border border-govbr-blue-600 text-center">
+                <h4 className="font-semibold text-govbr-blue-600 mb-2">🎯 Controle</h4>
+                <p className="text-xs text-gray-600">Status sincronização</p>
+              </div>
+              <div className="p-3 rounded-lg bg-green-50 border border-govbr-green-700 text-center">
+                <h4 className="font-semibold text-govbr-green-700 mb-2">🏛️ Produção</h4>
+                <p className="text-xs text-gray-600">Dados oficiais finais</p>
+              </div>
+              <div className="p-3 rounded-lg bg-gray-50 border border-gray-400 text-center">
+                <h4 className="font-semibold text-gray-600 mb-2">📋 Auditoria</h4>
+                <p className="text-xs text-gray-600">Logs e configurações</p>
+              </div>
+            </div>
+          </WhiteCard>
+
+          {/* Mapeamento de Campos */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={Code}>Mapeamento de Campos XML</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Transformação detalhada dos dados XML SIAPE para as estruturas do banco de dados PGD.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-4-detalhes/mapeamento-campos.png" alt="Mapeamento detalhado de campos" className="w-full rounded-lg border border-gray-200" />
+            </div>
+            <InfoBox variant="info" icon={Filter} title="TRANSFORMAÇÕES APLICADAS">
+              <div className="grid md:grid-cols-2 gap-4 mt-3">
+                <div>
+                  <h4 className="font-semibold text-sm mb-2">📄 Processamento XML</h4>
+                  <ul className="text-xs space-y-1 text-gray-600">
+                    <li>• XPath queries para extração</li>
+                    <li>• Normalização de strings</li>
+                    <li>• Validação de schemas</li>
+                    <li>• Conversão de tipos</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm mb-2">🔍 Regras de Negócio</h4>
+                  <ul className="text-xs space-y-1 text-gray-600">
+                    <li>• Filtros de situação</li>
+                    <li>• Validação de CPF</li>
+                    <li>• Mapeamento de enums</li>
+                    <li>• Hierarquia de unidades</li>
+                  </ul>
+                </div>
+              </div>
+            </InfoBox>
+          </WhiteCard>
+
+          {/* Otimizações */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={Zap} iconColor="text-govbr-green-700">Mecanismos de Otimização</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              5 mecanismos implementados para reduzir tempo de execução e volume de requisições.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-4-detalhes/optimization.png" alt="Mecanismos de otimização" className="w-full rounded-lg border border-gray-200" />
+            </div>
           <div className="grid md:grid-cols-2 gap-4">
             {[
               { icon: Zap, title: 'Requisições Paralelas', desc: 'Uso de curl_multi para execução simultânea', benefit: 'Reduz tempo em até 90%' },
@@ -456,9 +739,15 @@ export default function IntegracaoSiape() {
           </div>
         </WhiteCard>
 
-        {/* Configurações */}
-        <WhiteCard className="page-break avoid-break">
-          <SectionTitle icon={Settings}>Configurações</SectionTitle>
+          {/* Configurações */}
+          <WhiteCard className="avoid-break">
+            <SectionTitle icon={Settings}>Configurações Detalhadas</SectionTitle>
+            <p className="mb-4 text-gray-700">
+              Configurações completas do sistema incluindo variáveis de ambiente, limites e monitoramento.
+            </p>
+            <div className="mb-6">
+              <img src="/mermaid/integracao-siape/nivel-4-detalhes/configuration.png" alt="Configurações do sistema" className="w-full rounded-lg border border-gray-200" />
+            </div>
           <div className="p-4 rounded-lg mb-4 bg-gray-50 border border-gray-200">
             <h3 className="font-semibold mb-3 text-sm text-gray-900">Variáveis de Ambiente</h3>
             <div className="space-y-2 text-xs font-mono text-gray-700">
@@ -668,14 +957,17 @@ export default function IntegracaoSiape() {
           </div>
         </WhiteCard>
 
+        </div>
+
         {/* Resumo Final */}
-        <WhiteCard className="avoid-break">
-          <SectionTitle level={2}>Resumo</SectionTitle>
-          <div className="grid md:grid-cols-3 gap-4">
+        <WhiteCard className="page-break avoid-break">
+          <SectionTitle level={2}>📋 Resumo da Documentação Hierárquica</SectionTitle>
+          <div className="grid md:grid-cols-4 gap-4">
             {[
-              { icon: Database, color: 'bg-govbr-blue-600', title: '4 Etapas Sequenciais', desc: 'Coleta organizada de unidades e servidores' },
-              { icon: Zap, color: 'bg-govbr-green-700', title: '5 Otimizações', desc: 'Reduz tempo e volume de requisições' },
-              { icon: GitBranch, color: 'bg-amber-500', title: 'Pipeline Completo', desc: 'Coleta + Sincronização automática' }
+              { icon: Database, color: 'bg-govbr-blue-600', title: 'Nível 1: Contexto', desc: 'Visão geral e atores do sistema governamental' },
+              { icon: Layers, color: 'bg-govbr-green-700', title: 'Nível 2: Arquitetura', desc: 'Componentes técnicos e APIs detalhadas' },
+              { icon: Activity, color: 'bg-orange-500', title: 'Nível 3: Processos', desc: 'Fluxos completos e tratamento de erros' },
+              { icon: Code, color: 'bg-purple-600', title: 'Nível 4: Detalhes', desc: 'Estruturas de dados e mapeamentos' }
             ].map((item, i) => (
               <div key={i} className="text-center p-4">
                 <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center text-white ${item.color}`}>
@@ -685,6 +977,33 @@ export default function IntegracaoSiape() {
                 <p className="text-sm text-gray-500">{item.desc}</p>
               </div>
             ))}
+          </div>
+          <div className="mt-6 p-4 rounded-lg bg-govbr-blue-50 border border-govbr-blue-600">
+            <h3 className="font-semibold mb-2 text-govbr-blue-600">📊 Cobertura Documental Completa</h3>
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <h4 className="font-semibold mb-2">✅ Documentado</h4>
+                <ul className="space-y-1 text-gray-700">
+                  <li>• 12 diagramas Mermaid hierárquicos</li>
+                  <li>• 4 níveis de abstração</li>
+                  <li>• Contexto governamental completo</li>
+                  <li>• Arquitetura técnica detalhada</li>
+                  <li>• Fluxos de processo e erros</li>
+                  <li>• Estruturas de dados e mapeamentos</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-2">🎯 Benefícios</h4>
+                <ul className="space-y-1 text-gray-700">
+                  <li>• Documentação auto-explicativa</li>
+                  <li>• Facilita manutenção e evolução</li>
+                  <li>• Onboarding de novos desenvolvedores</li>
+                  <li>• Alinhamento com padrões MGI</li>
+                  <li>• Suporte a decisões técnicas</li>
+                  <li>• Auditoria e compliance</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </WhiteCard>
       </main>

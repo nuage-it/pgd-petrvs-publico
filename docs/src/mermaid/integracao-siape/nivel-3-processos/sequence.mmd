@@ -1,0 +1,75 @@
+sequenceDiagram
+    participant Job as BuscarDadosSiapeJob
+    participant E1 as BuscarDadosSiapeUnidades
+    participant E2 as BuscarDadosSiapeUnidade
+    participant E3 as BuscarDadosSiapeServidores
+    participant E4 as BuscarDadosSiapeServidor
+    participant API as ConectaGov API
+    participant DB as Database
+
+    Note over Job: Configuração inicial
+    Job->>Job: ini_set('memory_limit', '-1')
+    Job->>Job: loadTenantConfiguration()
+    Job->>Job: validar config ConectaGov
+
+    Note over Job,DB: ETAPA 1: Lista de Unidades
+    Job->>E1: new BuscarDadosSiapeUnidades()
+    Job->>E1: enviar()
+    E1->>DB: TRUNCATE siape_listaUORG
+    E1->>E1: getToken() - OAuth2
+    E1->>API: listaUorgs (SOAP)
+    API-->>E1: XML com lista de UORGs
+    E1->>DB: INSERT siape_listaUORG
+    E1-->>Job: concluído
+
+    Note over Job,DB: ETAPA 2: Detalhes das Unidades
+    Job->>E2: new BuscarDadosSiapeUnidade()
+    Job->>E2: enviar()
+    E2->>DB: TRUNCATE siape_dadosUORG
+    E2->>DB: SELECT siape_listaUORG WHERE processado=0
+    E2->>E2: parse XML + filtrar unidades
+    loop Para cada unidade filtrada
+        E2->>API: dadosUorg (SOAP) - lotes paralelos
+    end
+    API-->>E2: XMLs com detalhes das UORGs
+    E2->>DB: INSERT siape_dadosUORG (lotes)
+    E2->>DB: UPDATE siape_listaUORG SET processado=1
+    E2-->>Job: concluído
+
+    Note over Job,DB: ETAPA 3: Lista de Servidores
+    Job->>E3: new BuscarDadosSiapeServidores()
+    Job->>E3: enviar()
+    E3->>DB: TRUNCATE siape_listaServidores
+    E3->>DB: SELECT siape_listaUORG WHERE processado=1
+    loop Para cada unidade
+        E3->>API: listaServidores (SOAP) - lotes paralelos
+    end
+    API-->>E3: XMLs com CPFs por unidade
+    E3->>DB: INSERT siape_listaServidores (lotes)
+    E3-->>Job: concluído
+
+    Note over Job,DB: ETAPA 4: Dados dos Servidores
+    Job->>E4: new BuscarDadosSiapeServidor()
+    Job->>E4: enviar()
+    E4->>DB: TRUNCATE siape_consultaDadosFuncionais
+    E4->>DB: TRUNCATE siape_consultaDadosPessoais
+    E4->>DB: SELECT siape_listaServidores WHERE processado=0
+    E4->>E4: parse XMLs + extrair CPFs únicos + filtrar
+    
+    Note over E4,API: Sub-etapa 4A: Dados Funcionais
+    loop Para cada CPF filtrado
+        E4->>API: consultaDadosFuncionais (SOAP) - lotes paralelos
+    end
+    API-->>E4: XMLs com dados funcionais
+    E4->>DB: INSERT siape_consultaDadosFuncionais (lotes)
+    
+    Note over E4,API: Sub-etapa 4B: Dados Pessoais
+    loop Para cada CPF filtrado
+        E4->>API: consultaDadosPessoais (SOAP) - lotes paralelos
+    end
+    API-->>E4: XMLs com dados pessoais
+    E4->>DB: INSERT siape_consultaDadosPessoais (lotes)
+    E4->>DB: UPDATE siape_listaServidores SET processado=1
+    E4-->>Job: concluído
+
+    Job->>Job: Log: "Job BuscarDadosSiapeJob END"

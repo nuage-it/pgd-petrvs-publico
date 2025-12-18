@@ -1,0 +1,135 @@
+flowchart TB
+    subgraph TIPOS_ERRO["❌ TIPOS DE ERRO"]
+        direction TB
+        
+        subgraph REDE["🌐 ERROS DE REDE"]
+            TIMEOUT["⏱️ Timeout<br/>📊 > 300s<br/>🔄 Retry 3x"]
+            CONNECTION["🔌 Conexão<br/>❌ DNS/SSL<br/>🔄 Exponential Backoff"]
+            RATE_LIMIT["🚦 Rate Limit<br/>📊 429 HTTP<br/>⏱️ Retry-After"]
+        end
+        
+        subgraph AUTENTICACAO["🔐 ERROS AUTENTICAÇÃO"]
+            TOKEN_EXPIRED["🎫 Token Expirado<br/>📅 > 3600s<br/>🔄 Auto Refresh"]
+            INVALID_CREDS["🔑 Credenciais Inválidas<br/>❌ 401 HTTP<br/>🚨 Alert Admin"]
+            PERMISSION["🚫 Sem Permissão<br/>❌ 403 HTTP<br/>📋 Log Detalhado"]
+        end
+        
+        subgraph DADOS["📊 ERROS DE DADOS"]
+            XML_MALFORMED["📄 XML Malformado<br/>❌ Parse Error<br/>📋 Log XML"]
+            SCHEMA_INVALID["📋 Schema Inválido<br/>❌ Validation Error<br/>🔍 Field Details"]
+            BUSINESS_RULE["📊 Regra Negócio<br/>❌ Logic Error<br/>📋 Context Info"]
+        end
+        
+        subgraph SISTEMA["⚙️ ERROS DE SISTEMA"]
+            MEMORY_LIMIT["🧠 Limite Memória<br/>📊 PHP Fatal<br/>🔄 Chunk Processing"]
+            DB_ERROR["🗄️ Erro Banco<br/>❌ SQL Exception<br/>🔄 Transaction Rollback"]
+            DISK_SPACE["💾 Espaço Disco<br/>❌ Write Error<br/>🧹 Cleanup Temp"]
+        end
+    end
+    
+    subgraph ESTRATEGIAS["🛠️ ESTRATÉGIAS TRATAMENTO"]
+        direction TB
+        
+        subgraph RETRY_LOGIC["🔄 LÓGICA RETRY"]
+            EXPONENTIAL["📈 Exponential Backoff<br/>⏱️ 1s, 2s, 4s, 8s<br/>🎯 Max 3 tentativas"]
+            CIRCUIT_BREAKER["🔌 Circuit Breaker<br/>❌ 50% failure rate<br/>⏱️ 60s cooldown"]
+            JITTER["🎲 Jitter Random<br/>⏱️ ±20% variance<br/>🎯 Evitar thundering herd"]
+        end
+        
+        subgraph FALLBACK["🔄 ESTRATÉGIAS FALLBACK"]
+            PARTIAL_SUCCESS["✅ Sucesso Parcial<br/>📊 Processar Válidos<br/>📋 Log Falhas"]
+            CACHE_FALLBACK["⚡ Cache Fallback<br/>📊 Dados Anteriores<br/>⏱️ Stale Data OK"]
+            MANUAL_INTERVENTION["👤 Intervenção Manual<br/>🚨 Alert Admin<br/>📋 Action Required"]
+        end
+        
+        subgraph RECOVERY["🔧 ESTRATÉGIAS RECUPERAÇÃO"]
+            CHECKPOINT["📍 Checkpoint System<br/>💾 Save Progress<br/>🔄 Resume From Point"]
+            INCREMENTAL["📊 Processamento Incremental<br/>📅 Delta Changes<br/>🎯 Reduce Load"]
+            BATCH_SPLIT["📦 Split Batches<br/>🔢 Smaller Chunks<br/>⚡ Parallel Recovery"]
+        end
+    end
+    
+    subgraph MONITORAMENTO["📊 MONITORAMENTO E ALERTAS"]
+        direction TB
+        
+        subgraph DETECTION["🔍 DETECÇÃO"]
+            HEALTH_CHECK["💓 Health Check<br/>⏱️ Every 30s<br/>🎯 API Availability"]
+            ERROR_RATE["📈 Taxa Erro<br/>📊 > 10% threshold<br/>🚨 Auto Alert"]
+            PERFORMANCE["⚡ Performance<br/>⏱️ Response Time<br/>📊 SLA Monitoring"]
+        end
+        
+        subgraph ALERTING["🚨 SISTEMA ALERTAS"]
+            IMMEDIATE["⚡ Alertas Imediatos<br/>❌ Critical Errors<br/>📧 Email + SMS"]
+            BATCH_SUMMARY["📊 Resumo Lote<br/>📋 Batch Completion<br/>📧 Email Report"]
+            TREND_ANALYSIS["📈 Análise Tendência<br/>📊 Weekly Report<br/>📋 Improvement Suggestions"]
+        end
+        
+        subgraph LOGGING["📋 SISTEMA LOGS"]
+            STRUCTURED["🏗️ Logs Estruturados<br/>📊 JSON Format<br/>🔍 Searchable"]
+            CORRELATION["🔗 Correlation ID<br/>🎯 Request Tracking<br/>📊 End-to-End"]
+            RETENTION["📅 Retenção<br/>💾 30 days active<br/>🗄️ 1 year archive"]
+        end
+    end
+    
+    subgraph FLUXO_ERRO["🔄 FLUXO TRATAMENTO"]
+        direction TB
+        
+        ERROR_DETECTED["❌ Erro Detectado"]
+        CLASSIFY_ERROR["🔍 Classificar Erro"]
+        
+        subgraph DECISION["🤔 DECISÃO"]
+            IS_RETRYABLE{"🔄 Retry Possível?"}
+            IS_CRITICAL{"🚨 Crítico?"}
+            IS_RECOVERABLE{"🔧 Recuperável?"}
+        end
+        
+        subgraph ACTIONS["⚡ AÇÕES"]
+            RETRY_ACTION["🔄 Executar Retry<br/>⏱️ Com Backoff"]
+            FALLBACK_ACTION["🔄 Usar Fallback<br/>📊 Dados Alternativos"]
+            ALERT_ACTION["🚨 Enviar Alerta<br/>👤 Notificar Admin"]
+            LOG_ACTION["📋 Log Detalhado<br/>🔍 Context + Stack"]
+            STOP_ACTION["🛑 Parar Execução<br/>💾 Save State"]
+        end
+        
+        RECOVERY_ACTION["🔧 Iniciar Recovery<br/>📍 From Checkpoint"]
+        SUCCESS_CONTINUE["✅ Continuar<br/>📊 Normal Flow"]
+        MANUAL_REVIEW["👤 Revisão Manual<br/>📋 Admin Action"]
+    end
+
+    %% Fluxo principal de tratamento
+    ERROR_DETECTED --> CLASSIFY_ERROR
+    CLASSIFY_ERROR --> IS_RETRYABLE
+    
+    IS_RETRYABLE -->|"✅ Sim"| RETRY_ACTION
+    IS_RETRYABLE -->|"❌ Não"| IS_CRITICAL
+    
+    RETRY_ACTION -->|"✅ Sucesso"| SUCCESS_CONTINUE
+    RETRY_ACTION -->|"❌ Falha"| IS_CRITICAL
+    
+    IS_CRITICAL -->|"🚨 Sim"| ALERT_ACTION
+    IS_CRITICAL -->|"📊 Não"| IS_RECOVERABLE
+    
+    IS_RECOVERABLE -->|"✅ Sim"| RECOVERY_ACTION
+    IS_RECOVERABLE -->|"❌ Não"| FALLBACK_ACTION
+    
+    ALERT_ACTION --> STOP_ACTION --> MANUAL_REVIEW
+    RECOVERY_ACTION --> SUCCESS_CONTINUE
+    FALLBACK_ACTION --> LOG_ACTION --> SUCCESS_CONTINUE
+    
+    %% Conexões com estratégias
+    TIMEOUT & CONNECTION & RATE_LIMIT --> EXPONENTIAL
+    TOKEN_EXPIRED --> CIRCUIT_BREAKER
+    XML_MALFORMED & SCHEMA_INVALID --> PARTIAL_SUCCESS
+    MEMORY_LIMIT & DB_ERROR --> CHECKPOINT
+    
+    HEALTH_CHECK --> ERROR_RATE --> IMMEDIATE
+    STRUCTURED --> CORRELATION --> RETENTION
+    
+    %% Estilos
+    style TIPOS_ERRO fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    style ESTRATEGIAS fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    style MONITORAMENTO fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style FLUXO_ERRO fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style ERROR_DETECTED fill:#f44336,color:#fff,stroke:#d32f2f,stroke-width:3px
+    style SUCCESS_CONTINUE fill:#4caf50,color:#fff,stroke:#388e3c,stroke-width:2px
+    style MANUAL_REVIEW fill:#ff9800,color:#fff,stroke:#f57c00,stroke-width:2px

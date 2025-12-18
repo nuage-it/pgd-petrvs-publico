@@ -1,0 +1,92 @@
+classDiagram
+    class BuscarDadosSiapeJob {
+        -tenantId: string
+        +handle() void
+        +getDescricao() string
+    }
+
+    class BuscarDadosSiape {
+        <<abstract>>
+        #config: array
+        #token: string
+        #tokenExpiresAt: DateTime
+        +getToken() string
+        +executaRequisicoes(xmls) array
+        +buscaSincrona(xml) string
+        +prepareResponseXml(response) SimpleXMLElement
+        +simpleXmlElementToArray(element) array
+        +enviar() void*
+    }
+
+    class BuscarDadosSiapeUnidades {
+        +listaUorgs() void
+        +enviar() void
+    }
+
+    class BuscarDadosSiapeUnidade {
+        +dadosUorg() void
+        +enviar() void
+    }
+
+    class BuscarDadosSiapeServidores {
+        +listaServidores() void
+        +enviar() void
+    }
+
+    class BuscarDadosSiapeServidor {
+        +consultaDadosFuncionais() void
+        +consultaDadosPessoais() void
+        +enviar() void
+    }
+
+    class SiapeListaUORGS {
+        +id: UUID
+        +response: TEXT
+        +processado: INT
+    }
+
+    class SiapeDadosUORG {
+        +id: UUID
+        +codigo: VARCHAR
+        +response: TEXT
+        +data_modificacao: DATE
+        +processado: INT
+    }
+
+    class SiapeListaServidores {
+        +id: UUID
+        +response: TEXT
+        +processado: INT
+    }
+
+    class SiapeConsultaDadosFuncionais {
+        +id: UUID
+        +cpf: VARCHAR
+        +response: TEXT
+        +data_modificacao: DATE
+        +processado: INT
+    }
+
+    class SiapeConsultaDadosPessoais {
+        +id: UUID
+        +cpf: VARCHAR
+        +response: TEXT
+        +data_modificacao: DATE
+        +processado: INT
+    }
+
+    BuscarDadosSiapeJob --> BuscarDadosSiapeUnidades : "1. executa"
+    BuscarDadosSiapeJob --> BuscarDadosSiapeUnidade : "2. executa"
+    BuscarDadosSiapeJob --> BuscarDadosSiapeServidores : "3. executa"
+    BuscarDadosSiapeJob --> BuscarDadosSiapeServidor : "4. executa"
+
+    BuscarDadosSiape <|-- BuscarDadosSiapeUnidades : herda
+    BuscarDadosSiape <|-- BuscarDadosSiapeUnidade : herda
+    BuscarDadosSiape <|-- BuscarDadosSiapeServidores : herda
+    BuscarDadosSiape <|-- BuscarDadosSiapeServidor : herda
+
+    BuscarDadosSiapeUnidades ..> SiapeListaUORGS : armazena
+    BuscarDadosSiapeUnidade ..> SiapeDadosUORG : armazena
+    BuscarDadosSiapeServidores ..> SiapeListaServidores : armazena
+    BuscarDadosSiapeServidor ..> SiapeConsultaDadosFuncionais : armazena
+    BuscarDadosSiapeServidor ..> SiapeConsultaDadosPessoais : armazena

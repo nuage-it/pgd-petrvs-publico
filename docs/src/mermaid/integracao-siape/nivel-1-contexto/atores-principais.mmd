@@ -1,0 +1,68 @@
+graph LR
+    subgraph EXTERNOS["🌐 ATORES EXTERNOS"]
+        direction TB
+        
+        subgraph GOVERNO_FED["🏛️ GOVERNO FEDERAL"]
+            MGI_SIAPE["👥 MGI/SIAPE<br/>📊 Fonte Oficial de Dados<br/>🔒 Autoridade Certificadora"]
+            CONECTA_GOV["🌐 ConectaGov<br/>🚪 Gateway Oficial<br/>🔐 Autenticação OAuth2"]
+        end
+        
+        subgraph ORGAOS_PUBLICOS["🏢 ÓRGÃOS PÚBLICOS"]
+            MINISTERIOS["🏛️ Ministérios<br/>📋 Estruturas Organizacionais"]
+            AUTARQUIAS["🏢 Autarquias<br/>👥 Servidores Públicos"]
+            FUNDACOES["🎓 Fundações<br/>📊 Dados Funcionais"]
+        end
+    end
+    
+    subgraph SISTEMA_PGD["🎯 SISTEMA PGD PETRVS"]
+        direction TB
+        
+        subgraph CORE["⚙️ NÚCLEO DO SISTEMA"]
+            INTEGRACAO["🔄 Módulo Integração<br/>📡 Coleta e Sincronização<br/>⏱️ Jobs Automatizados"]
+            GESTAO["📋 Módulo Gestão<br/>📊 Planos de Trabalho<br/>✅ Entregas e Avaliações"]
+        end
+        
+        subgraph DADOS["💾 CAMADA DE DADOS"]
+            TEMP_DB["🗃️ Tabelas Temporárias<br/>📄 XMLs SIAPE<br/>⚡ Cache de Integração"]
+            PROD_DB["🏛️ Base Produção<br/>👥 Usuários e Unidades<br/>📊 Dados Oficiais"]
+        end
+    end
+    
+    subgraph USUARIOS_FINAIS["👥 USUÁRIOS FINAIS"]
+        direction TB
+        
+        subgraph GESTORES_NIVEL["👔 NÍVEL GERENCIAL"]
+            DIRIGENTES["🎖️ Dirigentes<br/>📊 Visão Estratégica<br/>✅ Aprovações Finais"]
+            CHEFIAS["👔 Chefias Imediatas<br/>📋 Supervisão Direta<br/>⚖️ Avaliações"]
+        end
+        
+        subgraph OPERACIONAL["👤 NÍVEL OPERACIONAL"]
+            SERVIDORES["👤 Servidores<br/>📝 Registro Atividades<br/>📊 Entregas"]
+            RH_LOCAL["👥 RH Local<br/>⚙️ Configurações<br/>📊 Relatórios"]
+        end
+        
+        subgraph TECNICO["🔧 NÍVEL TÉCNICO"]
+            ADMIN_SIS["⚙️ Admin Sistema<br/>🔧 Configurações<br/>📊 Monitoramento"]
+            ADMIN_TI["💻 Admin TI<br/>🖥️ Infraestrutura<br/>🔒 Segurança"]
+        end
+    end
+
+    %% Fluxos principais
+    MGI_SIAPE -->|"📊 Dados Oficiais"| CONECTA_GOV
+    CONECTA_GOV -->|"🔐 API Segura"| INTEGRACAO
+    
+    MINISTERIOS & AUTARQUIAS & FUNDACOES -->|"📋 Estruturas"| MGI_SIAPE
+    
+    INTEGRACAO -->|"📄 XMLs"| TEMP_DB
+    TEMP_DB -->|"🔄 Processamento"| PROD_DB
+    PROD_DB -->|"📊 Dados"| GESTAO
+    
+    GESTAO -->|"📋 Interface"| DIRIGENTES & CHEFIAS & SERVIDORES & RH_LOCAL
+    INTEGRACAO -->|"⚙️ Configuração"| ADMIN_SIS & ADMIN_TI
+    
+    %% Estilos
+    style EXTERNOS fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style SISTEMA_PGD fill:#e8f5e8,stroke:#388e3c,stroke-width:3px
+    style USUARIOS_FINAIS fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style INTEGRACAO fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    style GESTAO fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
