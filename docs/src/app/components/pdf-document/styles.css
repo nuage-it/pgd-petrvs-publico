@@ -1,0 +1,213 @@
+/* PDF Document Component Styles */
+
+/* Base document styling */
+.pdf-document {
+  --pdf-margin: 1rem;
+  --pdf-gap: 1.5rem;
+  --pdf-border-color: #e5e7eb;
+  --pdf-bg-muted: #f3f4f6;
+  --pdf-text-muted: #6b7280;
+}
+
+/* Content area */
+.pdf-content {
+  background-color: white;
+}
+
+/* Section styling */
+.pdf-section {
+  margin-bottom: var(--pdf-gap);
+}
+
+/* Page break utilities */
+.pdf-page-break-before {
+  page-break-before: always;
+  break-before: always;
+}
+
+.pdf-page-break-after {
+  page-break-after: always;
+  break-after: always;
+}
+
+.pdf-avoid-break {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Figure styling */
+.pdf-figure {
+  margin: 1rem 0;
+  page-break-inside: avoid;
+}
+
+.pdf-figure-content {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+  background-color: var(--pdf-bg-muted);
+  border-radius: 0.5rem;
+  border: 1px solid var(--pdf-border-color);
+}
+
+.pdf-figure-caption {
+  font-size: 0.875rem;
+  color: var(--pdf-text-muted);
+  text-align: center;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Table styling */
+.pdf-table-container {
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+.pdf-table-caption {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.pdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  page-break-inside: auto;
+}
+
+.pdf-table thead {
+  background-color: var(--pdf-bg-muted);
+}
+
+.pdf-table th,
+.pdf-table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--pdf-border-color);
+  text-align: left;
+}
+
+.pdf-table th {
+  font-weight: 600;
+}
+
+.pdf-table tr {
+  page-break-inside: avoid;
+  page-break-after: auto;
+}
+
+.pdf-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Header styling */
+.pdf-header {
+  background-color: white;
+  border-bottom: 1px solid var(--pdf-border-color);
+  padding: 1rem;
+}
+
+/* Footer styling */
+.pdf-footer {
+  background-color: #111827;
+  color: white;
+  padding: 2rem 1rem;
+  margin-top: 2rem;
+}
+
+/* Print-specific overrides */
+@media print {
+  .print-hidden {
+    display: none !important;
+  }
+
+  .pdf-document {
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  .pdf-section {
+    page-break-inside: avoid;
+  }
+
+  .pdf-content {
+    padding: 0;
+  }
+
+  .pdf-header,
+  .pdf-footer {
+    position: static;
+  }
+
+  /* Force color printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ensure backgrounds print */
+  .pdf-figure-content,
+  .pdf-table thead,
+  .pdf-header,
+  .pdf-footer {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* A4 page sizing hints for PDF generation */
+@page {
+  size: A4;
+  margin: 15mm 10mm;
+}
+
+/* Figura em pagina inteira para PDF */
+.pdf-figure-fullpage {
+  page-break-before: always;
+  break-before: always;
+  display: block;
+  padding: 1rem;
+  margin: 0;
+}
+
+.pdf-figure-fullpage .pdf-figure-content {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.pdf-figure-fullpage .mermaid-container {
+  padding: 0;
+  background: transparent;
+  border: none;
+  overflow: visible;
+}
+
+.pdf-figure-fullpage .mermaid-container svg {
+  width: 100% !important;
+  min-width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+.pdf-figure-fullpage .pdf-figure-caption {
+  margin-top: 1rem;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  text-align: center;
+}
+
+@media print {
+  .pdf-figure-fullpage {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .pdf-figure-fullpage .mermaid-container svg {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+}

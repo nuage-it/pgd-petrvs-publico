@@ -1,0 +1,45 @@
+flowchart TB
+    subgraph CLASSES["ARQUITETURA DE CLASSES"]
+        direction TB
+
+        JOB["SincronizarSiapeJob"]
+
+        subgraph SERVICES["CAMADA DE SERVICOS"]
+            IS["IntegracaoService"]
+            ISS["IntegracaoSiapeService"]
+            PDS["ProcessaDadosSiapeBD"]
+        end
+
+        subgraph PROCESSORS["PROCESSADORES ESPECIFICOS"]
+            SI["Servidor/Integracao"]
+            GI["Gestor/Integracao"]
+        end
+
+        subgraph REPOS["REPOSITORIOS"]
+            ISR["IntegracaoServidorRepository"]
+        end
+
+        subgraph MODELS["MODELS"]
+            MU["Usuario"]
+            MUN["Unidade"]
+            MIU["IntegracaoUnidade"]
+            MIS["IntegracaoServidor"]
+            MUI["UnidadeIntegrante"]
+        end
+
+        JOB --> IS
+        IS --> ISS
+        ISS --> PDS
+        IS --> SI
+        IS --> GI
+        SI --> ISR
+        ISR --> MIS
+        IS --> MU & MUN & MIU & MUI
+        GI --> MU & MUI
+    end
+
+    style JOB fill:#ffeb3b,stroke:#f57f17
+    style SERVICES fill:#e3f2fd,stroke:#1976d2
+    style PROCESSORS fill:#e8f5e9,stroke:#388e3c
+    style REPOS fill:#fff3e0,stroke:#ef6c00
+    style MODELS fill:#fce4ec,stroke:#c2185b

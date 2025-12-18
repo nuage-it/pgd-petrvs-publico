@@ -1,0 +1,75 @@
+sequenceDiagram
+    autonumber
+
+    box rgb(232, 245, 233) Job Layer
+        participant JOB as SincronizarSiapeJob
+    end
+
+    box rgb(227, 242, 253) Service Layer
+        participant IS as IntegracaoService
+        participant ISS as IntegracaoSiapeService
+        participant PDS as ProcessaDadosSiapeBD
+    end
+
+    box rgb(255, 243, 224) Processor Layer
+        participant SI as Servidor/Integracao
+        participant GI as Gestor/Integracao
+    end
+
+    box rgb(252, 228, 236) Data Layer
+        participant DB as Database
+    end
+
+    Note over JOB,DB: INICIO DO JOB
+
+    JOB->>IS: sincronizar(inputs)
+    activate IS
+
+    Note over IS,DB: FASE 1: UNIDADES
+
+    IS->>ISS: retornarUorgs()
+    activate ISS
+    ISS->>PDS: dadosUorg()
+    activate PDS
+    PDS->>DB: SELECT FROM siape_dadosUORG
+    DB-->>PDS: XMLs das UORGs
+    PDS-->>ISS: Array estruturado
+    deactivate PDS
+    ISS-->>IS: Array UORGs formatado
+    deactivate ISS
+
+    IS->>DB: UPDATE integracao_unidades
+
+    Note over IS,DB: FASE 2: SERVIDORES
+
+    IS->>ISS: retornarServidores()
+    activate ISS
+    ISS->>PDS: dadosServidor()
+    activate PDS
+    PDS->>DB: SELECT FROM siape_consultaDados
+    DB-->>PDS: XMLs combinados
+    PDS-->>ISS: Array servidores
+    deactivate PDS
+    ISS-->>IS: Array formatado
+    deactivate ISS
+
+    IS->>SI: processar()
+    activate SI
+    SI->>DB: UPDATE integracao_servidores
+    SI-->>IS: Resultado
+    deactivate SI
+
+    IS->>DB: UPDATE usuarios
+
+    Note over IS,DB: FASE 3: GESTORES
+
+    IS->>GI: processar(chefes)
+    activate GI
+    GI->>DB: salvarIntegrantes()
+    GI-->>IS: Resultado
+    deactivate GI
+
+    IS-->>JOB: Resultado completo
+    deactivate IS
+
+    Note over JOB,DB: FIM DO JOB

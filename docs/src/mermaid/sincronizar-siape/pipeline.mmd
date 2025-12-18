@@ -1,0 +1,43 @@
+flowchart TB
+    subgraph PIPELINE["PIPELINE DE SINCRONIZACAO SIAPE"]
+        direction TB
+
+        subgraph JOB1["JOB 1: BuscarDadosSiapeJob"]
+            direction TB
+            API[/"API ConectaGov/SIAPE"/]
+            COLETA["Coleta XMLs via SOAP"]
+            API --> COLETA
+        end
+
+        subgraph TEMP["TABELAS TEMPORARIAS"]
+            direction TB
+            T1[("siape_listaUORG")]
+            T2[("siape_dadosUORG")]
+            T3[("siape_listaServidores")]
+            T4[("siape_consultaDadosFuncionais")]
+            T5[("siape_consultaDadosPessoais")]
+        end
+
+        subgraph JOB2["JOB 2: SincronizarSiapeJob"]
+            direction TB
+            SYNC["Processa XMLs e atualiza BD"]
+        end
+
+        subgraph FINAL["TABELAS DEFINITIVAS"]
+            direction TB
+            F1[("integracao_unidades")]
+            F2[("integracao_servidores")]
+            F3[("unidades")]
+            F4[("usuarios")]
+            F5[("unidades_integrantes")]
+        end
+
+        COLETA --> T1 & T2 & T3 & T4 & T5
+        T1 & T2 & T3 & T4 & T5 --> SYNC
+        SYNC --> F1 & F2 & F3 & F4 & F5
+    end
+
+    style JOB1 fill:#e3f2fd,stroke:#1976d2
+    style TEMP fill:#fff8e1,stroke:#ffa000
+    style JOB2 fill:#e8f5e9,stroke:#388e3c
+    style FINAL fill:#fce4ec,stroke:#c2185b
