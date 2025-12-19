@@ -54,6 +54,7 @@ export class LoginComponent implements OnInit, ModalPage, OnDestroy {
 
     this.login = this.fh.FormBuilder({
       usuario: { default: "" },
+      email: { default: "" },
       senha: { default: "" },
       token: { default: "" }
     }, this.cdRef, this.validate);
@@ -62,9 +63,14 @@ export class LoginComponent implements OnInit, ModalPage, OnDestroy {
   public validate = (control: AbstractControl, controlName: string) => {
     let result = null;
 
-    if (['senha', 'token'].indexOf(controlName) >= 0 && !control.value?.length) {
+    if (controlName == "email" && control.value?.length > 0) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(control.value)) {
+        result = "E-mail inválido";
+      }
+    } else if (['senha', 'token'].indexOf(controlName) >= 0 && !control.value?.length) {
       result = "Obrigatório";
-    } else if (controlName == "usuario" && !this.util.validarCPF(control.value)) {
+    } else if (controlName == "usuario" && control.value?.length > 0 && !this.util.validarCPF(control.value)) {
       result = "Inválido";
     }
 
@@ -157,6 +163,18 @@ export class LoginComponent implements OnInit, ModalPage, OnDestroy {
 
   public signInLoginUnicoBackEnd() {
     this.auth.authLoginUnicoBackEnd();
+  }
+
+  public onLoginUserPassword() {
+    const email = this.login.controls.email.value;
+    const password = this.login.controls.senha.value;
+
+    if (!email || !password) {
+      this.error = "Preencha email e senha";
+      return;
+    }
+
+    this.auth.authUserPassword(email, password, this.redirectTo);
   }
 
   ngOnDestroy(){

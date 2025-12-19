@@ -1,0 +1,31 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soap:Body>
+    <ns1:consultaDadosPessoaisResponse xmlns:ns1="http://servico.wssiapenet">
+      <out xmlns="">
+        <codCor xmlns="http://tipo.servico.wssiapenet">3</codCor>
+        <codDefFisica xmlns="http://tipo.servico.wssiapenet"></codDefFisica>
+        <codEstadoCivil xmlns="http://tipo.servico.wssiapenet">1</codEstadoCivil>
+        <codNacionalidade xmlns="http://tipo.servico.wssiapenet">1</codNacionalidade>
+        <codSexo xmlns="http://tipo.servico.wssiapenet">F</codSexo>
+        <dataChegBrasil xmlns="http://tipo.servico.wssiapenet"></dataChegBrasil>
+        <dataNascimento xmlns="http://tipo.servico.wssiapenet">15031990</dataNascimento>
+        <grupoSanguineo xmlns="http://tipo.servico.wssiapenet">A+</grupoSanguineo>
+        <nome xmlns="http://tipo.servico.wssiapenet">MARIANA SOUZA PEREIRA</nome>
+        <nomeCor xmlns="http://tipo.servico.wssiapenet">PARDA</nomeCor>
+        <nomeDefFisica xmlns="http://tipo.servico.wssiapenet"></nomeDefFisica>
+        <nomeEstadoCivil xmlns="http://tipo.servico.wssiapenet">SOLTEIRA</nomeEstadoCivil>
+        <nomeMae xmlns="http://tipo.servico.wssiapenet">ANA LUCIA SOUZA PEREIRA</nomeMae>
+        <nomeMunicipNasc xmlns="http://tipo.servico.wssiapenet">GOIANIA</nomeMunicipNasc>
+        <nomeNacionalidade xmlns="http://tipo.servico.wssiapenet">BRASILEIRA NATA</nomeNacionalidade>
+        <nomePai xmlns="http://tipo.servico.wssiapenet">CARLOS ROBERTO PEREIRA</nomePai>
+        <nomePais xmlns="http://tipo.servico.wssiapenet"></nomePais>
+        <nomeSexo xmlns="http://tipo.servico.wssiapenet">FEMININO</nomeSexo>
+        <numPisPasep xmlns="http://tipo.servico.wssiapenet">10987654321</numPisPasep>
+        <ufNascimento xmlns="http://tipo.servico.wssiapenet">GO</ufNascimento>
+      </out>
+    </ns1:consultaDadosPessoaisResponse>
+  </soap:Body>
+</soap:Envelope>
+ 

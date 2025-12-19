@@ -60,7 +60,40 @@
                               </div>
                             </div>
                           </div>
-                        </div>                        
+                        </div>
+                        <!-- Login Email/Senha -->
+                        <div class="or-container" *ngIf="globals.hasUserPasswordLogin && (globals.hasAzureLogin || globals.hasLoginUnicoLogin || globals.hasGoogleLogin)">
+                          <div class="line-separator"></div>
+                          <div class="or-label">ou</div>
+                          <div class="line-separator"></div>
+                        </div>
+                        <div *ngIf="globals.hasUserPasswordLogin" class="card-body">
+                          <div class="row mt-3">
+                            <div class="col-12">
+                              <div class="mb-3">
+                                <label for="loginEmail" class="form-label">E-mail</label>
+                                <input type="email" class="form-control" id="loginEmail"
+                                       [formControl]="$any(login.controls.email)"
+                                       placeholder="Digite seu e-mail"
+                                       (keyup.enter)="onLoginUserPassword()">
+                              </div>
+                              <div class="mb-3">
+                                <label for="loginSenha" class="form-label">Senha</label>
+                                <input type="password" class="form-control" id="loginSenha"
+                                       [formControl]="$any(login.controls.senha)"
+                                       placeholder="Digite sua senha"
+                                       (keyup.enter)="onLoginUserPassword()">
+                              </div>
+                              <button class="btn btn-primary w-100"
+                                      type="button"
+                                      (click)="onLoginUserPassword()"
+                                      [disabled]="auth.logging">
+                                <span *ngIf="!auth.logging">Entrar com Email/Senha</span>
+                                <span *ngIf="auth.logging" class="spinner-border spinner-border-sm" role="status"></span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                     </div>
                 </div>
             </div>

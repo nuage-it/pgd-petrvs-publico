@@ -1,0 +1,27 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soap:Body>
+    <ns1:listaServidoresResponse xmlns:ns1="http://servico.wssiapenet">
+      <out xmlns="">
+        <ns2:Servidor xmlns:ns2="http://entidade.wssiapenet">
+          <cpf xmlns="http://entidade.wssiapenet">12345678901</cpf>
+          <dataUltimaTransacao xmlns="http://entidade.wssiapenet">15022025</dataUltimaTransacao>
+        </ns2:Servidor>
+        <ns2:Servidor xmlns:ns2="http://entidade.wssiapenet">
+          <cpf xmlns="http://entidade.wssiapenet">10987654321</cpf>
+          <dataUltimaTransacao xmlns="http://entidade.wssiapenet">28022025</dataUltimaTransacao>
+        </ns2:Servidor>
+        <ns2:Servidor xmlns:ns2="http://entidade.wssiapenet">
+          <cpf xmlns="http://entidade.wssiapenet">98765432100</cpf>
+          <dataUltimaTransacao xmlns="http://entidade.wssiapenet">03032025</dataUltimaTransacao>
+        </ns2:Servidor>
+        <ns2:Servidor xmlns:ns2="http://entidade.wssiapenet">
+          <cpf xmlns="http://entidade.wssiapenet">11223344556</cpf>
+          <dataUltimaTransacao xmlns="http://entidade.wssiapenet">10032025</dataUltimaTransacao>
+        </ns2:Servidor>
+      </out>
+    </ns1:listaServidoresResponse>
+  </soap:Body>
+</soap:Envelope>
+ 

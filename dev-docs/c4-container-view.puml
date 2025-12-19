@@ -1,0 +1,64 @@
+@startuml C4_Container_Petrvs
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Sistema PGD Petrvs - Visão de Containers
+
+Person(servidor, "Servidor Público", "Executa planos de trabalho e atividades")
+Person(gestor, "Gestor", "Aprova planos e avalia desempenho")
+Person(admin_sistema, "Admin Sistema", "Gerencia tenants e configurações globais")
+
+System_Boundary(petrvs_system, "Sistema PGD Petrvs") {
+    Container(web_app, "Aplicação Web", "Angular 18 + TypeScript", "Interface responsiva para gestão de PGD")
+    Container(api_gateway, "API Gateway", "Laravel 10 + PHP 8.1", "API REST multi-tenant com autenticação")
+    Container(background_processor, "Processador Background", "Laravel Horizon + Redis", "Jobs assíncronos e filas")
+    Container(scheduler, "Agendador", "Laravel Schedule + Cron", "Execução automática de rotinas")
+    Container(notification_service, "Serviço Notificações", "Laravel Queues", "Envio multi-canal de notificações")
+    
+    ContainerDb(tenant_database, "Base Tenant", "MySQL 8.0", "Dados isolados por órgão")
+    ContainerDb(central_database, "Base Central", "MySQL 8.0", "Configurações globais e logs")
+    ContainerDb(cache_store, "Cache Distribuído", "Redis 6.0", "Cache de sessões e dados")
+    ContainerDb(queue_store, "Armazenamento Filas", "Redis 6.0", "Filas de processamento")
+    ContainerDb(file_storage, "Armazenamento Arquivos", "Local/S3", "Documentos e relatórios")
+}
+
+System_Ext(siape_system, "Sistema SIAPE", "Dados funcionais governo federal")
+System_Ext(login_unico, "Login Único Gov.br", "Autenticação unificada")
+System_Ext(azure_ad, "Microsoft Azure AD", "Autenticação corporativa")
+System_Ext(google_workspace, "Google Workspace", "Serviços Google")
+System_Ext(whatsapp_api, "WhatsApp Business API", "Notificações móveis")
+System_Ext(smtp_server, "Servidor SMTP", "Envio de emails")
+
+' Relacionamentos Usuários -> Sistema
+Rel(servidor, web_app, "Acessa via navegador", "HTTPS")
+Rel(gestor, web_app, "Gerencia e avalia", "HTTPS")
+Rel(admin_sistema, web_app, "Administra sistema", "HTTPS")
+
+' Relacionamentos Internos
+Rel(web_app, api_gateway, "Consome APIs", "REST/JSON over HTTPS")
+Rel(api_gateway, tenant_database, "Persiste dados tenant", "MySQL Protocol")
+Rel(api_gateway, central_database, "Dados globais", "MySQL Protocol")
+Rel(api_gateway, cache_store, "Cache aplicação", "Redis Protocol")
+Rel(api_gateway, queue_store, "Enfileira jobs", "Redis Protocol")
+Rel(api_gateway, file_storage, "Armazena arquivos", "File System/S3")
+
+Rel(background_processor, queue_store, "Processa filas", "Redis Protocol")
+Rel(background_processor, tenant_database, "Atualiza dados", "MySQL Protocol")
+Rel(scheduler, api_gateway, "Executa rotinas", "Internal calls")
+Rel(notification_service, queue_store, "Consome fila notificações", "Redis Protocol")
+
+' Relacionamentos Externos
+Rel(api_gateway, siape_system, "Sincroniza dados funcionais", "SOAP/XML")
+Rel(api_gateway, login_unico, "Autentica usuários gov.br", "OAuth 2.0")
+Rel(api_gateway, azure_ad, "Autentica usuários corporativos", "SAML/OAuth 2.0")
+Rel(api_gateway, google_workspace, "Integra calendário", "OAuth 2.0/REST")
+
+Rel(notification_service, whatsapp_api, "Envia mensagens", "REST API")
+Rel(notification_service, smtp_server, "Envia emails", "SMTP")
+
+' Relacionamentos de Monitoramento
+Rel(background_processor, cache_store, "Métricas Horizon", "Redis Protocol")
+Rel(scheduler, central_database, "Logs execução", "MySQL Protocol")
+
+SHOW_LEGEND()
+
+@enduml

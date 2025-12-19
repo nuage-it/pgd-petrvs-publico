@@ -28,7 +28,9 @@ return [
         'codOrgao' => env('INTEGRACAO_SIAPE_CODORGAO', ""),
         'codUorg' => env('INTEGRACAO_SIAPE_CODUORG', ""),
         'parmExistPag' => env('INTEGRACAO_SIAPE_PARMEXISTPAG', ""),
-        'parmTipoVinculo' => env('INTEGRACAO_SIAPE_PARMTIPOVINCULO', "")
+        'parmTipoVinculo' => env('INTEGRACAO_SIAPE_PARMTIPOVINCULO', ""),
+        'conectagov_chave' => env('INTEGRACAO_SIAPE_CONECTAGOV_CHAVE', ""),
+        'conectagov_senha' => env('INTEGRACAO_SIAPE_CONECTAGOV_SENHA', "")
     ],
     'perfilComum' => 'Participante',
     'perfilChefe' => 'Chefia de Unidade Executora'

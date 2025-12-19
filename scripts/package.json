@@ -1,0 +1,12 @@
+{
+  "name": "petrvs-migration-scripts",
+  "version": "1.0.0",
+  "description": "Scripts para migration do PETRVS",
+  "main": "tenant-migrate.js",
+  "scripts": {
+    "migrate": "node tenant-migrate.js"
+  },
+  "dependencies": {
+    "mysql2": "^3.6.5"
+  }
+}

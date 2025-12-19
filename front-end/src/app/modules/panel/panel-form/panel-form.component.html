@@ -113,6 +113,10 @@
                 <input-text [size]="5" label="Secret" controlName="login_login_unico_secret" [attr.maxlength]=250></input-text>
                 <input-text [size]="10" label="Redirect" disabled="true" controlName="login_login_unico_redirect" [attr.maxlength]=250></input-text>
             </div>
+            <separator title="Login Email/Senha"></separator>
+            <div class="row">
+                <input-switch [size]="12" scale="large" labelPosition="right" label="Habilitar login por Email/Senha" controlName="login_user_password"></input-switch>
+            </div>
         </tab>
         <tab key="INTEGRACAO" label="Integração">
             <div class="row">

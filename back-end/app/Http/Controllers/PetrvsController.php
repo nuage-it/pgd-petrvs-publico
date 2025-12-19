@@ -81,7 +81,7 @@ class PetrvsController extends ControllerBase
         "azure" =>              $tenant["login_azure"],
         "institucional" =>      false,
         "firebase" =>           $tenant["login_google"],
-        "user_password" =>      false,
+        "user_password" =>      $tenant["login_user_password"] ?? false,
         "login_unico" =>        $tenant["login_login_unico"],
       ]
     ]);
