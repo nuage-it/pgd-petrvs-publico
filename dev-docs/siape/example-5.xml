@@ -1,0 +1,22 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soap:Body>
+    <ns1:listaUorgsResponse xmlns:ns1="http://servico.wssiapenet">
+      <out xmlns="">
+        <ns2:Uorg xmlns:ns2="http://entidade.wssiapenet">
+          <codigo xmlns="http://entidade.wssiapenet">9001</codigo>
+          <dataUltimaTransacao xmlns="http://entidade.wssiapenet">15012026</dataUltimaTransacao>
+          <nome xmlns="http://entidade.wssiapenet">SECRETARIA DE TECNOLOGIA E INOVACAO</nome>
+        </ns2:Uorg>
+
+        <ns2:Uorg xmlns:ns2="http://entidade.wssiapenet">
+          <codigo xmlns="http://entidade.wssiapenet">9002</codigo>
+          <dataUltimaTransacao xmlns="http://entidade.wssiapenet">02022026</dataUltimaTransacao>
+          <nome xmlns="http://entidade.wssiapenet">COORDENACAO-GERAL DE SISTEMAS DIGITAIS</nome>
+        </ns2:Uorg>
+      </out>
+    </ns1:listaUorgsResponse>
+  </soap:Body>
+</soap:Envelope>
+ 

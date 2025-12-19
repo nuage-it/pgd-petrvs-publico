@@ -6,8 +6,7 @@
     "preloadFiles": [
         "environment-config"
     ],
-    "extraFiles": [
-    ],
+    "extraFiles": [],
     "angularFiles": [
         "scripts.js",
         "runtime.js",

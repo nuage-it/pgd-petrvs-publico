@@ -1,0 +1,254 @@
+@startuml Modelo Dimensional PGD Petrvs
+
+!define FACT_COLOR #FFE6CC
+!define DIM_COLOR #E1F5FE
+!define BRIDGE_COLOR #F3E5F5
+
+' Dimensões
+package "Dimensões" {
+  entity "dim_tempo" as dt <<Dimensão>> #E1F5FE {
+    * sk_tempo : BIGINT
+    --
+    * data : DATE
+    * ano : INT
+    * trimestre : INT
+    * mes : INT
+    * semana : INT
+    * dia_semana : INT
+    * dia_util : BOOLEAN
+    * feriado : BOOLEAN
+    * periodo_consolidacao : VARCHAR
+  }
+
+  entity "dim_unidade" as du <<Dimensão>> #E1F5FE {
+    * sk_unidade : BIGINT
+    --
+    * id_unidade : UUID
+    * codigo : VARCHAR
+    * sigla : VARCHAR
+    * nome : VARCHAR
+    * path_hierarquia : TEXT
+    * nivel_hierarquia : INT
+    * unidade_pai : VARCHAR
+    * instituidora : BOOLEAN
+    * ativa : BOOLEAN
+    * entidade_sigla : VARCHAR
+  }
+
+  entity "dim_usuario" as dus <<Dimensão>> #E1F5FE {
+    * sk_usuario : BIGINT
+    --
+    * id_usuario : UUID
+    * cpf : VARCHAR
+    * matricula : VARCHAR
+    * nome : VARCHAR
+    * email : VARCHAR
+    * situacao_funcional : VARCHAR
+    * perfil : VARCHAR
+    * ativo : BOOLEAN
+  }
+
+  entity "dim_programa" as dp <<Dimensão>> #E1F5FE {
+    * sk_programa : BIGINT
+    --
+    * id_programa : UUID
+    * nome : VARCHAR
+    * normativa : VARCHAR
+    * prazo_max_plano : INT
+    * periodicidade : VARCHAR
+    * termo_obrigatorio : BOOLEAN
+    * vigencia_inicio : DATE
+    * vigencia_fim : DATE
+  }
+
+  entity "dim_modalidade" as dm <<Dimensão>> #E1F5FE {
+    * sk_modalidade : BIGINT
+    --
+    * id_modalidade : UUID
+    * nome : VARCHAR
+    * descricao : TEXT
+    * ativa : BOOLEAN
+  }
+
+  entity "dim_entrega" as de <<Dimensão>> #E1F5FE {
+    * sk_entrega : BIGINT
+    --
+    * id_entrega : UUID
+    * nome : VARCHAR
+    * descricao : TEXT
+    * tipo : VARCHAR
+    * categoria : VARCHAR
+  }
+
+  entity "dim_status" as ds <<Dimensão>> #E1F5FE {
+    * sk_status : BIGINT
+    --
+    * codigo_status : VARCHAR
+    * nome_status : VARCHAR
+    * categoria : VARCHAR
+    * ativo : BOOLEAN
+  }
+}
+
+' Fatos Principais
+package "Fatos Principais" {
+  entity "ft_plano_entrega" as fpe <<Fato>> #FFE6CC {
+    * sk_plano_entrega : BIGINT
+    --
+    * sk_tempo_inicio : BIGINT
+    * sk_tempo_fim : BIGINT
+    * sk_unidade : BIGINT
+    * sk_programa : BIGINT
+    * sk_usuario_criacao : BIGINT
+    * sk_status : BIGINT
+    --
+    Métricas:
+    * qtd_planos : INT
+    * dias_duracao : INT
+    * qtd_entregas : INT
+    * progresso_geral : DECIMAL
+    * prazo_cumprido : BOOLEAN
+    * dias_atraso : INT
+  }
+
+  entity "ft_plano_trabalho" as fpt <<Fato>> #FFE6CC {
+    * sk_plano_trabalho : BIGINT
+    --
+    * sk_tempo_inicio : BIGINT
+    * sk_tempo_fim : BIGINT
+    * sk_usuario : BIGINT
+    * sk_unidade : BIGINT
+    * sk_programa : BIGINT
+    * sk_modalidade : BIGINT
+    * sk_status : BIGINT
+    --
+    Métricas:
+    * carga_horaria_total : DECIMAL
+    * tempo_proporcional : DECIMAL
+    * qtd_entregas : INT
+    * percentual_conclusao : DECIMAL
+    * prazo_cumprido : BOOLEAN
+    * dias_atraso : INT
+  }
+}
+
+' Fatos Detalhados
+package "Fatos Detalhados" {
+  entity "ft_entrega_plano" as fep <<Fato>> #FFE6CC {
+    * sk_entrega_plano : BIGINT
+    --
+    * sk_tempo_inicio : BIGINT
+    * sk_tempo_fim : BIGINT
+    * sk_plano_entrega : BIGINT
+    * sk_entrega : BIGINT
+    * sk_unidade_demandante : BIGINT
+    --
+    Métricas:
+    * progresso_esperado : DECIMAL
+    * progresso_realizado : DECIMAL
+    * desvio_progresso : DECIMAL
+    * homologado : BOOLEAN
+    * dias_atraso : INT
+  }
+
+  entity "ft_entrega_trabalho" as fet <<Fato>> #FFE6CC {
+    * sk_entrega_trabalho : BIGINT
+    --
+    * sk_tempo : BIGINT
+    * sk_plano_trabalho : BIGINT
+    * sk_entrega_plano : BIGINT
+    * sk_usuario : BIGINT
+    --
+    Métricas:
+    * forca_trabalho : DECIMAL
+    * meta_numerica : DECIMAL
+    * realizado_numerico : DECIMAL
+    * percentual_conclusao : DECIMAL
+  }
+
+  entity "ft_avaliacao" as fa <<Fato>> #FFE6CC {
+    * sk_avaliacao : BIGINT
+    --
+    * sk_tempo_avaliacao : BIGINT
+    * sk_avaliador : BIGINT
+    * sk_plano_trabalho : BIGINT
+    * sk_plano_entrega : BIGINT
+    --
+    Métricas:
+    * nota_final : DECIMAL
+    * qtd_justificativas : INT
+    * tem_recurso : BOOLEAN
+    * dias_para_avaliar : INT
+    * avaliacao_automatica : BOOLEAN
+  }
+}
+
+' Relacionamentos Fatos Principais
+fpe }|--|| dt : sk_tempo_inicio
+fpe }|--|| dt : sk_tempo_fim  
+fpe }|--|| du : sk_unidade
+fpe }|--|| dp : sk_programa
+fpe }|--|| dus : sk_usuario_criacao
+fpe }|--|| ds : sk_status
+
+fpt }|--|| dt : sk_tempo_inicio
+fpt }|--|| dt : sk_tempo_fim
+fpt }|--|| dus : sk_usuario
+fpt }|--|| du : sk_unidade
+fpt }|--|| dp : sk_programa
+fpt }|--|| dm : sk_modalidade
+fpt }|--|| ds : sk_status
+
+' Relacionamentos Fatos Detalhados
+fep }|--|| dt : sk_tempo_inicio
+fep }|--|| dt : sk_tempo_fim
+fep }|--|| fpe : sk_plano_entrega
+fep }|--|| de : sk_entrega
+fep }|--|| du : sk_unidade_demandante
+
+fet }|--|| dt : sk_tempo
+fet }|--|| fpt : sk_plano_trabalho
+fet }|--|| fep : sk_entrega_plano
+fet }|--|| dus : sk_usuario
+
+fa }|--|| dt : sk_tempo_avaliacao
+fa }|--|| dus : sk_avaliador
+fa }|--|| fpt : sk_plano_trabalho
+fa }|--|| fpe : sk_plano_entrega
+
+' Agregações
+package "Agregações" {
+  entity "agg_performance_unidade" as apu <<Agregação>> #F3E5F5 {
+    * sk_tempo : BIGINT
+    * sk_unidade : BIGINT
+    --
+    * qtd_planos_entrega : INT
+    * qtd_planos_trabalho : INT
+    * taxa_conclusao : DECIMAL
+    * media_notas : DECIMAL
+    * produtividade : DECIMAL
+  }
+
+  entity "agg_performance_usuario" as apus <<Agregação>> #F3E5F5 {
+    * sk_tempo : BIGINT
+    * sk_usuario : BIGINT
+    --
+    * qtd_planos : INT
+    * carga_horaria_total : DECIMAL
+    * qtd_entregas : INT
+    * media_avaliacoes : DECIMAL
+    * taxa_cumprimento : DECIMAL
+  }
+}
+
+apu }|--|| dt : sk_tempo
+apu }|--|| du : sk_unidade
+apus }|--|| dt : sk_tempo
+apus }|--|| dus : sk_usuario
+
+note top of fpe : Fato principal para análise\nde planos de entrega
+note top of fpt : Fato principal para análise\nde planos de trabalho
+note top of dt : Dimensão temporal com\nhierarquia completa
+note top of du : Dimensão organizacional\ncom hierarquia
+
+@enduml

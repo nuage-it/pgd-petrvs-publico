@@ -1,0 +1,53 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soap:Body>
+    <ns1:dadosUorgResponse xmlns:ns1="http://servico.wssiapenet">
+      <out xmlns="">
+        <bairro xmlns="http://entidade.wssiapenet">SETOR ADMINISTRATIVO</bairro>
+        <cep xmlns="http://entidade.wssiapenet">74000000</cep>
+        <cnpjLocalizador xmlns="http://entidade.wssiapenet">11111111000199</cnpjLocalizador>
+        <cnpjUpag xmlns="http://entidade.wssiapenet">22222222000155</cnpjUpag>
+        <codAreaAtuaUorg xmlns="http://entidade.wssiapenet">02</codAreaAtuaUorg>
+        <codMunicipio xmlns="http://entidade.wssiapenet">9712</codMunicipio>
+        <codOrgao xmlns="http://entidade.wssiapenet">16000</codOrgao>
+        <codSiorg xmlns="http://entidade.wssiapenet">3001</codSiorg>
+        <codSiorgOrgao xmlns="http://entidade.wssiapenet">400500</codSiorgOrgao>
+        <codUnidadeSiafi xmlns="http://entidade.wssiapenet">300150</codUnidadeSiafi>
+        <codUorg xmlns="http://entidade.wssiapenet">009999</codUorg>
+        <codUorgPagadora xmlns="http://entidade.wssiapenet">008888</codUorgPagadora>
+        <codUorgPai xmlns="http://entidade.wssiapenet">007777</codUorgPai>
+        <codUorgPessoal xmlns="http://entidade.wssiapenet">000001</codUorgPessoal>
+        <codUpagCentralizadora xmlns="http://entidade.wssiapenet">000008888</codUpagCentralizadora>
+        <codigoPais xmlns="http://entidade.wssiapenet">076</codigoPais>
+        <complemento xmlns="http://entidade.wssiapenet">3º ANDAR</complemento>
+        <cpfSubstitutoAutoridadeUorg xmlns="http://entidade.wssiapenet">12345678901</cpfSubstitutoAutoridadeUorg>
+        <cpfTitularAutoridadeUorg xmlns="http://entidade.wssiapenet">10987654321</cpfTitularAutoridadeUorg>
+        <cxPostal xmlns="http://entidade.wssiapenet">123456</cxPostal>
+        <dataCriacaoUorg xmlns="http://entidade.wssiapenet">15062020</dataCriacaoUorg>
+        <diplomaLegalCriacaoUorg xmlns="http://entidade.wssiapenet">PORTARIA 123/2020</diplomaLegalCriacaoUorg>
+        <email xmlns="http://entidade.wssiapenet">contato.uorg@exemplo.gov.br</email>
+        <identificacaoAntecedentesUorg xmlns="http://entidade.wssiapenet">880000018800777788009999</identificacaoAntecedentesUorg>
+        <indicadorUorgAdministrativa xmlns="http://entidade.wssiapenet">S</indicadorUorgAdministrativa>
+        <indicadorUorgDestIntegracao xmlns="http://entidade.wssiapenet">1</indicadorUorgDestIntegracao>
+        <indicadorUorgPessoal xmlns="http://entidade.wssiapenet">S</indicadorUorgPessoal>
+        <indicadorUorgRegimenta xmlns="http://entidade.wssiapenet">N</indicadorUorgRegimenta>
+        <indicadorUorgUpag xmlns="http://entidade.wssiapenet">S</indicadorUorgUpag>
+        <localFisico xmlns="http://entidade.wssiapenet">SEDE ADMINISTRATIVA</localFisico>
+        <logradouro xmlns="http://entidade.wssiapenet">AVENIDA CENTRAL, BLOCO B</logradouro>
+        <nomeAreaAtuaUorg xmlns="http://entidade.wssiapenet">AREA ADMINISTRATIVA</nomeAreaAtuaUorg>
+        <nomeExtendido xmlns="http://entidade.wssiapenet">COORDENACAO GERAL DE SISTEMAS ADMINISTRATIVOS</nomeExtendido>
+        <nomeMunicipio xmlns="http://entidade.wssiapenet">GOIANIA</nomeMunicipio>
+        <nomePais xmlns="http://entidade.wssiapenet">BRASIL</nomePais>
+        <nomeUorg xmlns="http://entidade.wssiapenet">COORD-GERAL DE SISTEMAS ADM</nomeUorg>
+        <nomeUorgMaiusculo xmlns="http://entidade.wssiapenet">COORD-GERAL DE SISTEMAS ADM</nomeUorgMaiusculo>
+        <numero xmlns="http://entidade.wssiapenet">0100</numero>
+        <siglaOrgao xmlns="http://entidade.wssiapenet">MDS</siglaOrgao>
+        <siglaUfMunicipio xmlns="http://entidade.wssiapenet">GO</siglaUfMunicipio>
+        <siglaUorg xmlns="http://entidade.wssiapenet">CGSA</siglaUorg>
+        <telefone xmlns="http://entidade.wssiapenet">006231234567890000</telefone>
+      </out>
+    </ns1:dadosUorgResponse>
+  </soap:Body>
+</soap:Envelope>
+ 

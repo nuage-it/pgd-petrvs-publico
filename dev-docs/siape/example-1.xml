@@ -1,0 +1,92 @@
+<soap:Envelope
+  xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soap:Body>
+    <ns1:consultaDadosFuncionaisResponse
+      xmlns:ns1="http://servico.wssiapenet">
+      <out
+        xmlns="">
+        <dadosFuncionais
+          xmlns="http://tipo.servico.wssiapenet">
+          <DadosFuncionais>
+            <codAtivFun>0010</codAtivFun>
+            <codCargo>400000</codCargo>
+            <codClasse>A</codClasse>
+            <codFuncao>FEX0001</codFuncao>
+            <codJornada>30</codJornada>
+            <codNovaFuncao></codNovaFuncao>
+            <codOcorrAposentadoria></codOcorrAposentadoria>
+            <codOcorrExclusao></codOcorrExclusao>
+            <codOcorrIngressoOrgao>02000</codOcorrIngressoOrgao>
+            <codOcorrIngressoServPublico>01000</codOcorrIngressoServPublico>
+            <codOcorrIsencaoIR></codOcorrIsencaoIR>
+            <codOcorrPSS></codOcorrPSS>
+            <codOrgao>15000</codOrgao>
+            <codPadrao>III</codPadrao>
+            <codSitFuncional>02</codSitFuncional>
+            <codUorgExercicio>000000002</codUorgExercicio>
+            <codUorgLotacao>000003000</codUorgLotacao>
+            <codUpag>15000000012345</codUpag>
+            <codValeTransporte></codValeTransporte>
+            <codigoOrgaoOrigem>00001</codigoOrgaoOrigem>
+            <cpfChefiaImediata>12345678901</cpfChefiaImediata>
+            <dataExercicioNoOrgao>01012022</dataExercicioNoOrgao>
+            <dataFimOcorrIsencaoIR></dataFimOcorrIsencaoIR>
+            <dataFimOcorrPSS></dataFimOcorrPSS>
+            <dataFimValeAR></dataFimValeAR>
+            <dataIngressoFuncao>01052020</dataIngressoFuncao>
+            <dataIngressoNovaFuncao></dataIngressoNovaFuncao>
+            <dataIniOcorrIsencaoIR></dataIniOcorrIsencaoIR>
+            <dataIniOcorrPSS></dataIniOcorrPSS>
+            <dataIniValeAR>01012015</dataIniValeAR>
+            <dataOcorrAposentadoria></dataOcorrAposentadoria>
+            <dataOcorrExclusao></dataOcorrExclusao>
+            <dataOcorrIngressoOrgao>01012022</dataOcorrIngressoOrgao>
+            <dataOcorrIngressoServPublico>15052015</dataOcorrIngressoServPublico>
+            <dataUorgExercicio></dataUorgExercicio>
+            <dataUorgLotacao></dataUorgLotacao>
+            <emailChefiaImediata>CHEFIA@EXEMPLO.COM</emailChefiaImediata>
+            <emailInstitucional>FUNCIONARIO@GOV.BR</emailInstitucional>
+            <emailServidor>FUNCIONARIO@GMAIL.COM</emailServidor>
+            <identUnica>025100123</identUnica>
+            <matriculaSiape>2510012</matriculaSiape>
+            <modalidadePGD></modalidadePGD>
+            <nomeAtivFun>ASSESSOR(A) JUNIOR</nomeAtivFun>
+            <nomeCargo>ASSISTENTE POLITICO</nomeCargo>
+            <nomeChefeUorg>JUAN PEREZ</nomeChefeUorg>
+            <nomeClasse>CLASSE B</nomeClasse>
+            <nomeFuncao>ASSISTENTE EXECUTIVO</nomeFuncao>
+            <nomeJornada>30 HORAS SEMANAIS</nomeJornada>
+            <nomeNovaFuncao></nomeNovaFuncao>
+            <nomeOcorrAposentadoria></nomeOcorrAposentadoria>
+            <nomeOcorrExclusao></nomeOcorrExclusao>
+            <nomeOcorrIngressoOrgao>RESTRUCTURACAO FUNCIONAL</nomeOcorrIngressoOrgao>
+            <nomeOcorrIngressoServPublico>CONCURSO PUBLICO</nomeOcorrIngressoServPublico>
+            <nomeOcorrIsencaoIR></nomeOcorrIsencaoIR>
+            <nomeOcorrPSS></nomeOcorrPSS>
+            <nomeOrgao>MINISTERIO DA SAUDE</nomeOrgao>
+            <nomeRegimeJuridico>ESTATUTARIO</nomeRegimeJuridico>
+            <nomeSitFuncional>ATIVO TEMPORARIO</nomeSitFuncional>
+            <nomeUorgExercicio>MINISTERIO DA SAUDE</nomeUorgExercicio>
+            <nomeUorgLotacao>DEPARTAMENTO DE PESSOAL</nomeUorgLotacao>
+            <nomeUpag>SECAO DE RECURSOS HUMANOS</nomeUpag>
+            <participaPGD>sim</participaPGD>
+            <percentualTS>0,00</percentualTS>
+            <pontuacaoDesempenho></pontuacaoDesempenho>
+            <siglaNivelCargo>NS</siglaNivelCargo>
+            <siglaOrgao>MS</siglaOrgao>
+            <siglaOrgaoOrigem></siglaOrgaoOrigem>
+            <siglaRegimeJuridico>ES</siglaRegimeJuridico>
+            <siglaUorgExercicio>MS</siglaUorgExercicio>
+            <siglaUorgLotacao>DEPREH</siglaUorgLotacao>
+            <siglaUpag>SRH</siglaUpag>
+            <tipoValeAR></tipoValeAR>
+            <valorValeTransporte></valorValeTransporte>
+          </DadosFuncionais>
+        </dadosFuncionais>
+      </out>
+    </ns1:consultaDadosFuncionaisResponse>
+  </soap:Body>
+</soap:Envelope>
+ 

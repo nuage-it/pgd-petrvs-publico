@@ -93,6 +93,7 @@ export class PanelFormComponent extends PageFormBase<Tenant, TenantDaoService> {
       login_google: { default: false },
       login_azure: { default: false },
       login_login_unico: { default: false },
+      login_user_password: { default: false },
       login_select_entidade: { default: false },
       login_google_client_id: { default: "" },
       login_firebase_client_id: { default: "" },

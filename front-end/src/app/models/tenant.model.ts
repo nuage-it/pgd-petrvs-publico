@@ -51,6 +51,7 @@ export class Tenant extends Base {
     public login_google: boolean = false;
     public login_azure: boolean = false;
     public login_login_unico: boolean = false;
+    public login_user_password: boolean = false;
     // INTEGRACAO
     public tipo_integracao: string = "";
     public integracao_auto_incluir: boolean = true;

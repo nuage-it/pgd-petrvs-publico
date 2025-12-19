@@ -1,0 +1,166 @@
+@startuml C4_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title Sistema PGD Petrvs - Visão de Contexto
+
+Person(servidor, "Servidor Público", "Participante do PGD que executa planos de trabalho")
+Person(gestor, "Gestor", "Responsável por aprovar e avaliar planos")
+Person(admin, "Administrador", "Gerencia configurações e tenants")
+
+System(pgd_petrvs, "PGD Petrvs", "Sistema de gestão de Programa de Gestão e Desempenho")
+
+System_Ext(siape, "SIAPE", "Sistema de dados funcionais do governo federal")
+System_Ext(login_unico, "Login Único", "Autenticação unificada gov.br")
+System_Ext(azure_ad, "Azure AD", "Autenticação corporativa Microsoft")
+System_Ext(google, "Google Workspace", "Serviços Google para organizações")
+System_Ext(whatsapp, "WhatsApp Business", "Notificações via WhatsApp")
+System_Ext(email_smtp, "Servidor SMTP", "Envio de emails")
+
+Rel(servidor, pgd_petrvs, "Cria e executa planos de trabalho")
+Rel(gestor, pgd_petrvs, "Aprova e avalia planos")
+Rel(admin, pgd_petrvs, "Administra sistema")
+
+Rel(pgd_petrvs, siape, "Sincroniza dados funcionais", "SOAP/XML")
+Rel(pgd_petrvs, login_unico, "Autentica usuários", "OAuth 2.0")
+Rel(pgd_petrvs, azure_ad, "Autentica usuários corporativos", "SAML/OAuth")
+Rel(pgd_petrvs, google, "Integra calendário e autenticação", "OAuth 2.0")
+Rel(pgd_petrvs, whatsapp, "Envia notificações", "API REST")
+Rel(pgd_petrvs, email_smtp, "Envia emails", "SMTP")
+
+@enduml
+
+@startuml C4_Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Sistema PGD Petrvs - Visão de Containers
+
+Person(usuario, "Usuário", "Servidor público ou gestor")
+
+System_Boundary(pgd_system, "Sistema PGD Petrvs") {
+    Container(spa, "Frontend SPA", "Angular 15", "Interface web responsiva")
+    Container(api, "API Backend", "Laravel 10 + PHP 8.1", "API REST multi-tenant")
+    Container(queue, "Sistema de Filas", "Laravel Horizon + Redis", "Processamento assíncrono")
+    Container(scheduler, "Agendador", "Laravel Schedule", "Jobs automáticos")
+    
+    ContainerDb(mysql, "Banco Principal", "MySQL 8.0", "Dados transacionais multi-tenant")
+    ContainerDb(redis, "Cache/Sessões", "Redis 6.0", "Cache distribuído e filas")
+    ContainerDb(storage, "Armazenamento", "Local/S3", "Arquivos e documentos")
+}
+
+System_Ext(siape, "SIAPE")
+System_Ext(auth_providers, "Provedores Auth", "Login Único, Azure AD, Google")
+System_Ext(notification_services, "Serviços Notificação", "SMTP, WhatsApp")
+
+Rel(usuario, spa, "Acessa via browser", "HTTPS")
+Rel(spa, api, "Consome APIs", "REST/JSON")
+Rel(api, mysql, "Persiste dados", "SQL")
+Rel(api, redis, "Cache e sessões", "Redis Protocol")
+Rel(api, storage, "Armazena arquivos")
+Rel(queue, redis, "Processa filas")
+Rel(scheduler, api, "Executa jobs")
+
+Rel(api, siape, "Sincroniza dados", "SOAP")
+Rel(api, auth_providers, "Autentica", "OAuth/SAML")
+Rel(queue, notification_services, "Envia notificações")
+
+@enduml
+
+@startuml C4_Component
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title API Backend - Visão de Componentes
+
+Container(spa, "Frontend SPA", "Angular")
+Container(queue_worker, "Queue Worker", "Horizon")
+
+Container_Boundary(api, "API Backend Laravel") {
+    Component(auth_middleware, "Auth Middleware", "Laravel Sanctum", "Autenticação e autorização")
+    Component(tenant_middleware, "Tenant Middleware", "Stancl/Tenancy", "Isolamento multi-tenant")
+    
+    Component(plano_trabalho_ctrl, "PlanoTrabalho Controller", "Laravel Controller", "Gestão de planos de trabalho")
+    Component(plano_entrega_ctrl, "PlanoEntrega Controller", "Laravel Controller", "Gestão de planos de entrega")
+    Component(usuario_ctrl, "Usuario Controller", "Laravel Controller", "Gestão de usuários")
+    Component(relatorio_ctrl, "Relatorio Controller", "Laravel Controller", "Geração de relatórios")
+    Component(integracao_ctrl, "Integracao Controller", "Laravel Controller", "Integrações externas")
+    
+    Component(plano_trabalho_svc, "PlanoTrabalho Service", "Business Logic", "Regras de negócio de planos")
+    Component(integracao_siape_svc, "IntegracaoSiape Service", "Integration", "Sincronização SIAPE")
+    Component(notificacao_svc, "Notificacao Service", "Communication", "Envio de notificações")
+    Component(relatorio_svc, "Relatorio Service", "Reporting", "Processamento de relatórios")
+    
+    Component(eloquent_models, "Eloquent Models", "ORM", "Modelos de dados")
+    Component(jobs, "Background Jobs", "Queue Jobs", "Processamento assíncrono")
+}
+
+ContainerDb(mysql, "MySQL Database")
+ContainerDb(redis, "Redis Cache")
+System_Ext(siape, "SIAPE")
+System_Ext(notification_apis, "APIs Notificação")
+
+Rel(spa, auth_middleware, "HTTP Requests")
+Rel(auth_middleware, tenant_middleware, "Authenticated requests")
+Rel(tenant_middleware, plano_trabalho_ctrl, "Tenant context")
+Rel(tenant_middleware, plano_entrega_ctrl, "Tenant context")
+Rel(tenant_middleware, usuario_ctrl, "Tenant context")
+Rel(tenant_middleware, relatorio_ctrl, "Tenant context")
+Rel(tenant_middleware, integracao_ctrl, "Tenant context")
+
+Rel(plano_trabalho_ctrl, plano_trabalho_svc, "Business calls")
+Rel(integracao_ctrl, integracao_siape_svc, "Integration calls")
+Rel(plano_trabalho_svc, notificacao_svc, "Send notifications")
+Rel(relatorio_ctrl, relatorio_svc, "Generate reports")
+
+Rel(plano_trabalho_svc, eloquent_models, "Data access")
+Rel(integracao_siape_svc, eloquent_models, "Data persistence")
+Rel(relatorio_svc, eloquent_models, "Data queries")
+
+Rel(eloquent_models, mysql, "SQL queries")
+Rel(plano_trabalho_svc, redis, "Cache access")
+Rel(notificacao_svc, jobs, "Queue jobs")
+
+Rel(queue_worker, jobs, "Process jobs")
+Rel(integracao_siape_svc, siape, "SOAP calls")
+Rel(jobs, notification_apis, "Send notifications")
+
+@enduml
+
+@startuml C4_Code
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Code.puml
+
+title PlanoTrabalho Service - Visão de Código
+
+Container_Boundary(plano_trabalho_service, "PlanoTrabalhoService") {
+    Component(validate_store, "validateStore()", "Method", "Valida criação/edição de planos")
+    Component(ativar, "ativar()", "Method", "Ativa plano de trabalho")
+    Component(check_permissions, "checkPermissions()", "Method", "Verifica permissões hierárquicas")
+    Component(atualiza_consolidacoes, "atualizaConsolidacoes()", "Method", "Gera períodos de consolidação")
+    Component(assinaturas_exigidas, "assinaturasExigidas()", "Method", "Calcula assinaturas TCR")
+    
+    Component(calendario_svc, "CalendarioService", "Dependency", "Cálculos de datas úteis")
+    Component(status_svc, "StatusService", "Dependency", "Gestão de status")
+    Component(unidade_svc, "UnidadeService", "Dependency", "Hierarquia organizacional")
+    Component(usuario_svc, "UsuarioService", "Dependency", "Dados de usuários")
+}
+
+Component(plano_trabalho_model, "PlanoTrabalho Model", "Eloquent Model")
+Component(consolidacao_model, "PlanoTrabalhoConsolidacao Model", "Eloquent Model")
+Component(usuario_model, "Usuario Model", "Eloquent Model")
+Component(unidade_model, "Unidade Model", "Eloquent Model")
+
+Rel(validate_store, calendario_svc, "Valida períodos")
+Rel(validate_store, usuario_svc, "Verifica usuário")
+Rel(validate_store, plano_trabalho_model, "Consulta conflitos")
+
+Rel(ativar, status_svc, "Atualiza status")
+Rel(ativar, check_permissions, "Valida permissões")
+
+Rel(check_permissions, unidade_svc, "Verifica hierarquia")
+Rel(check_permissions, usuario_svc, "Verifica atribuições")
+
+Rel(atualiza_consolidacoes, consolidacao_model, "Cria/atualiza períodos")
+Rel(atualiza_consolidacoes, calendario_svc, "Calcula datas")
+
+Rel(assinaturas_exigidas, unidade_svc, "Busca gestores")
+Rel(assinaturas_exigidas, usuario_model, "Dados de usuários")
+
+@enduml

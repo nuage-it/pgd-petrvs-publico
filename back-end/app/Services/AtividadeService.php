@@ -2,39 +2,38 @@
 
 namespace App\Services;
 
+use App\Exceptions\ServerException;
+use App\Models\Afastamento;
+use App\Models\Atividade;
+use App\Models\AtividadePausa;
+use App\Models\CadeiaValorProcesso;
+use App\Models\Comentario;
+use App\Models\Documento;
+use App\Models\PlanoEntregaEntrega;
+use App\Models\PlanoTrabalho;
+use App\Models\PlanoTrabalhoConsolidacaoAtividade;
+use App\Models\PlanoTrabalhoEntrega;
+use App\Models\PlanejamentoObjetivo;
 use App\Models\Unidade;
 use App\Models\Usuario;
-use App\Models\AtividadePausa;
-use App\Models\Comentario;
-use App\Models\Afastamento;
-use App\Services\ServiceBase;
-use App\Services\UnidadeService;
+use App\Services\AtividadePausaService;
 use App\Services\CalendarioService;
 use App\Services\ComentarioService;
 use App\Services\RawWhere;
+use App\Services\ServiceBase;
+use App\Services\UnidadeService;
 use App\Services\UtilService;
-use App\Services\AtividadePausaService;
-use App\Exceptions\ServerException;
-use App\Models\Atividade;
-use App\Models\Documento;
-use App\Models\PlanoTrabalho;
-use App\Models\PlanoTrabalhoEntrega;
-use App\Models\PlanoEntregaEntrega;
-use App\Models\PlanoTrabalhoConsolidacao;
-use App\Models\PlanoTrabalhoConsolidacaoAtividade;
-use App\Models\PlanejamentoObjetivo;
-use App\Models\CadeiaValorProcesso;
-use App\Models\StatusJustificativa;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Interval;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class AtividadeService extends ServiceBase
 {
-    public $unidades = []; /* Buffer de unidades para funções que fazem consulta frequentes em unidades */
+    private array $unidades = []; // Buffer de unidades para funções que fazem consulta frequentes em unidades
 
-    public $joinable = [
+    public array $joinable = [
         "tipo_atividade",
         "plano_trabalho_entrega.plano_entrega_entrega",
         "tarefas.tipo_tarefa",
@@ -53,88 +52,77 @@ class AtividadeService extends ServiceBase
         "reacoes.usuario:id,nome,apelido"
     ];
 
-    public function validateIniciar($data) {
-        /* Testa permissão para iniciar atividade de outros usuarios */
+    private function validateIniciar(array $data): void
+    {
         $usuario = parent::loggedUser();
-        if ($data["usuario_id"] != $usuario->id){
-            if (!$usuario->hasPermissionTo('MOD_ATV_USERS_INICIAR')){
-                throw new ServerException("ValidateAtividade", "Não é permitido iniciar atividade de outro usuário!");
-            }
+        if ($data["usuario_id"] !== $usuario->id && !$usuario->hasPermissionTo('MOD_ATV_USERS_INICIAR')) {
+            throw new ServerException("ValidateAtividade", "Não é permitido iniciar atividade de outro usuário!");
         }
     }
 
-    /* 
-    (RN_CSLD_14) Não será possível lançar novas atividades em períodos já CONCLUIDO ou AVALIADO. 
-    (RN_ATV_5) A atividade deverá ter perído compatível com o do plano de trabalho (Data de distribuição e Prazo de entrega devem estar dentro do período do plano de trabalho)
-    (RN_ATV_6) Somente será permitido iniciar a atividade dentro do período do plano de trabalho.
-    */        
-    public function validatePeriodo($action, $id, $planoTrabalhoId, $planoTrabalhoEntregaId, $dataDistribuicao, $dataEstipuladaEntrega, $dataInicio, $dataEntrega) {
+    /**
+     * (RN_CSLD_14) Não será possível lançar novas atividades em períodos já CONCLUIDO ou AVALIADO.
+     * (RN_ATV_5) A atividade deverá ter período compatível com o do plano de trabalho
+     * (RN_ATV_6) Somente será permitido iniciar a atividade dentro do período do plano de trabalho.
+     */
+    private function validatePeriodo(
+        string $action,
+        string $id,
+        string $planoTrabalhoId,
+        string $planoTrabalhoEntregaId,
+        string $dataDistribuicao,
+        string $dataEstipuladaEntrega,
+        ?string $dataInicio,
+        ?string $dataEntrega
+    ): void {
         $entrega = PlanoTrabalhoEntrega::find($planoTrabalhoEntregaId);
-        if(empty($entrega)) throw new ServerException("ValidateAtividade", "Entrega não encontra");
-        if($entrega->plano_trabalho_id != $planoTrabalhoId) throw new ServerException("ValidateAtividade", "Entrega não pertence ao plano de trabalho selecionado");
-        $plano = PlanoTrabalho::with(["consolidacoes" => function($query) use ($dataDistribuicao, $dataEstipuladaEntrega) {
-            $query->whereIn('status', ['CONCLUIDO', 'AVALIADO']);
-            $query->where('data_inicio', '<=', $dataEstipuladaEntrega);
-            $query->where('data_fim', '>=', $dataDistribuicao);
-        }])->find($planoTrabalhoId);
-        if (!empty($dataInicio)) {
-            $dataInicioFormatada = date('Y-m-d', strtotime($dataInicio));
-            $dataEntregaFormatada = date('Y-m-d', strtotime($dataEntrega));
-            $dataInicioPlano = date('Y-m-d', strtotime($plano->data_inicio));
-            $dataFimPlano = date('Y-m-d', strtotime($plano->data_fim));
-        
-            $periodoPlanoFormatado = "Plano de trabalho: " .
-            UtilService::getDateFormatted($plano->data_inicio) . " - " .
-            UtilService::getDateFormatted($plano->data_fim);
-        
-            if ($dataInicioFormatada < $dataInicioPlano || $dataInicioFormatada > $dataFimPlano) {
-                throw new ServerException(
-                    "ValidateAtividade",
-                    "A inicialização da atividade não pode ser anterior ou posterior ao plano de trabalho. ($periodoPlanoFormatado)"
-                );
-            }
-            
-            if ($dataEntregaFormatada < $dataInicioPlano || $dataEntregaFormatada > $dataFimPlano) {
-                throw new ServerException(
-                    "ValidateAtividade",
-                    "A entrega da atividade não pode ser anterior ou posterior ao plano de trabalho. ($periodoPlanoFormatado)"
-                );
-            }
+        if (empty($entrega)) {
+            throw new ServerException("ValidateAtividade", "Entrega não encontrada");
+        }
+        if ($entrega->plano_trabalho_id !== $planoTrabalhoId) {
+            throw new ServerException("ValidateAtividade", "Entrega não pertence ao plano de trabalho selecionado");
+        }
+        $plano = PlanoTrabalho::with([
+            "consolidacoes" => fn($query) => $query
+                ->whereIn('status', ['CONCLUIDO', 'AVALIADO'])
+                ->where('data_inicio', '<=', $dataEstipuladaEntrega)
+                ->where('data_fim', '>=', $dataDistribuicao)
+        ])->find($planoTrabalhoId);
+        if ($dataInicio) {
+            $this->validateDatasPeriodoPlano($dataInicio, $dataEntrega, $plano);
         }
         
-        if(UtilService::asTimestamp($plano->data_inicio) > UtilService::asTimestamp($dataDistribuicao) || UtilService::asTimestamp($plano->data_fim) < UtilService::asTimestamp($dataEstipuladaEntrega)) throw new ServerException("ValidateAtividade", "Data da atividade extrapola a do plano de trabalho. (Plano de trabalho: " . UtilService::getDateTimeFormatted($plano->data_inicio) . " - " . UtilService::getDateTimeFormatted($plano->data_fim) . ")\n[RN_ATV_5]");
-        foreach($plano->consolidacoes as $concluida) {
-            if($action == ServiceBase::ACTION_INSERT || !PlanoTrabalhoConsolidacaoAtividade::where("plano_trabalho_consolidacao_id", $concluida->id)->where("atividade_id", $id)->exists()) throw new ServerException("ValidateAtividade", "Não será possível lançar novas atividades em períodos já CONCLUIDO ou AVALIADO.\n[ver RN_CSLD_14]");
-        }
+        $this->validateDataAtividadeDentroPlano($plano, $dataDistribuicao, $dataEstipuladaEntrega);
+        $this->validateConsolidacoesConcluidas($plano, $action, $id);
     }
 
-    public function validateStore($data, $unidade, $action) {
-        $unidade = Unidade::find($data["unidade_id"]);
-        if($action != ServiceBase::ACTION_INSERT) {
+    public function validateStore(array $data, Unidade $unidade, string $action): void
+    {
+        $unidadeAtividade = Unidade::find($data["unidade_id"]);
+        
+        if ($action !== ServiceBase::ACTION_INSERT) {
             $this->validateBackward($data["id"], "STORE");
         }
-        if(!$this->usuarioService->hasLotacao($data["unidade_id"])) {
-            throw new ServerException("ValidateAtividade", $unidade->sigla . " não é uma unidade do usuário logado nem subordinada a ele.");
+        
+        if (!$this->usuarioService->hasLotacao($data["unidade_id"])) {
+            throw new ServerException(
+                "ValidateAtividade",
+                "{$unidadeAtividade->sigla} não é uma unidade do usuário logado nem subordinada a ele."
+            );
         }
-        if(!empty($data["plano_trabalho_id"])) {
-            $this->validatePeriodo($action, $data["id"] ?? "", $data["plano_trabalho_id"], $data["plano_trabalho_entrega_id"], $data["data_distribuicao"], $data["data_estipulada_entrega"], $data["data_inicio"], $data["data_entrega"]);
-            $planoTrabalho = PlanoTrabalho::find($data["plano_trabalho_id"]);
-            if($planoTrabalho->unidade_id != $data["unidade_id"]) {
-                throw new ServerException("ValidateAtividade", "Unidade do plano diverge da unidade da atividade");
-            }
+        
+        if (!empty($data["plano_trabalho_id"])) {
+            $this->validatePlanoTrabalho($data, $action);
         }
-        if(!empty($data["usuario_id"])) {
-            $usuario = Usuario::find($data["usuario_id"]);
-            if(!$this->usuarioService->hasLotacao($data["unidade_id"], $usuario, false)) {
-                if (!parent::loggedUser()->hasPermissionTo('MOD_ATV_USU_EXT')) {
-                    throw new ServerException("ValidateAtividade", $unidade->sigla . " não é uma unidade (lotação) para o responsável, ou você não tem permissão para incluir atividade para usuário de outra unidade (MOD_ATV_USU_EXT)");
-                }
-            }
+        
+        if (!empty($data["usuario_id"])) {
+            $this->validateUsuarioAtividade($data, $unidadeAtividade);
         }
     }
 
-    public function proxyStore($data, $unidade, $action) {
-        if($action == ServiceBase::ACTION_INSERT) {
+    public function proxyStore(array $data, Unidade $unidade, string $action): array
+    {
+        if ($action === ServiceBase::ACTION_INSERT) {
             $usuario = parent::loggedUser();
             $data["demandante_id"] = $usuario->id;
             $data["status"] = empty($data["plano_trabalho_consolidacao_id"]) ? 'INCLUIDO' : 'CONCLUIDO';
@@ -142,25 +130,22 @@ class AtividadeService extends ServiceBase
         return $data;
     }
 
-    public function extraStore(&$entity, $unidade, $action) {
+    public function extraStore(Atividade &$entity, Unidade $unidade, string $action): void
+    {
         $metadados = $this->metadados($entity);
-        /* Atualiza status */
-        $status = $metadados["pausado"] ? "PAUSADO" : 
-            ($metadados["concluido"] ? "CONCLUIDO" : 
-            ($metadados["iniciado"] ? "INICIADO" : "INCLUIDO"));
+        $status = $this->determineStatus($metadados);
         $this->statusService->atualizaStatus($entity, $status);
     }
 
-    public function afterStore($entity, $action) {
-        if($action == ServiceBase::ACTION_INSERT) {
-            $this->notificacoesService->send("ATV_DISTRIBUICAO", ["atividade" => $entity]);
-        } else {
-            $this->notificacoesService->send("ATV_MODIFICACAO", ["atividade" => $entity]);
-        }
+    public function afterStore(Atividade $entity, string $action): void
+    {
+        $tipoNotificacao = $action === ServiceBase::ACTION_INSERT ? "ATV_DISTRIBUICAO" : "ATV_MODIFICACAO";
+        $this->notificacoesService->send($tipoNotificacao, ["atividade" => $entity]);
     }
 
-    public function afterUpdate($entity, $data) {
-        if(isset($data["comentarios"])) {
+    public function afterUpdate(Atividade $entity, array $data): void
+    {
+        if (isset($data["comentarios"])) {
             $this->notificacoesService->send("ATV_COMENTARIO", ["atividade" => $entity]);
         }
     }
@@ -315,125 +300,132 @@ class AtividadeService extends ServiceBase
         return $result;
     }
 
-    public function metadados($atividade) {
+    public function metadados($atividade): array
+    {
         $atividade = (object) $atividade;
-        if(empty($this->unidades[$atividade->unidade_id])) {
+        
+        if (empty($this->unidades[$atividade->unidade_id])) {
             $this->unidades[$atividade->unidade_id] = Unidade::find($atividade->unidade_id);
         }
+        
         $hora = $this->unidadeService->hora($this->unidades[$atividade->unidade_id]);
-        $result = [
+        $concluido = !empty($atividade->data_entrega);
+        $pausado = $this->isAtividadePausada($atividade->pausas);
+        
+        $consolidacoes = $atividade->consolidacoes ?? 
+            PlanoTrabalhoConsolidacaoAtividade::where("atividade_id", $atividade->id)->get();
+        
+        return [
             "horario_servidor" => CalendarioService::horarioServidor(),
             "tempo_despendido" => 0,
-            "concluido" => !empty($atividade->data_entrega),
+            "concluido" => $concluido,
             "iniciado" => !empty($atividade->data_inicio),
             "arquivado" => !empty($atividade->data_arquivamento),
             "produtividade" => 0,
+            "pausado" => $pausado,
+            "atrasado" => !$concluido && strtotime($atividade->data_estipulada_entrega) < strtotime($hora),
+            "tempo_atraso" => !$concluido && strtotime($atividade->data_estipulada_entrega) < strtotime($hora) 
+                ? $this->calendarioService->tempoAtraso($atividade->data_estipulada_entrega, $hora, $atividade->carga_horaria) 
+                : 0,
+            "consolidacoes" => $consolidacoes->map(fn($x) => [
+                "id" => ((object) $x)->id,
+                "status" => ((object) $x)->snapshot->status,
+                "data_conclusao" => ((object) $x)->data_conclusao
+            ])
         ];
-        $pausado = false;
-        foreach($atividade->pausas as $pausa) {
-            $pausado = $pausado || empty($pausa->data_fim);
-        }
-        $consolidacoes = $atividade->consolidacoes ?? PlanoTrabalhoConsolidacaoAtividade::where("atividade_id", $atividade->id)->get();
-        $result["pausado"] = $pausado;
-        $result["atrasado"] = !$result["concluido"] && strtotime($atividade->data_estipulada_entrega) < strtotime($hora);
-        $result["tempo_atraso"] = $result["atrasado"] ? $this->calendarioService->tempoAtraso($atividade->data_estipulada_entrega, $hora, $atividade->carga_horaria) : 0;
-        $result["consolidacoes"] = $consolidacoes->map(fn($x) => [
-            "id" => ((object) $x)->id,
-            "status" => ((object) $x)->snapshot->status,
-            "data_conclusao" => ((object) $x)->data_conclusao
-        ]);
-        return $result;
     }
 
-    public function iniciadas($usuario_id) {
-        $result = [];
-        $atividades = Atividade::select("id")->where("usuario_id", $usuario_id)->whereNotNull("data_inicio")->whereNull("data_entrega")->whereDoesntHave('pausas', function (Builder $query) {
-            $query->whereNull('data_fim');
-        })->get();
-        foreach ($atividades as $atividade) {
-            array_push($result, $atividade->id);
-        }
-        return $result;
+    public function iniciadas(string $usuarioId): array
+    {
+        return Atividade::select("id")
+            ->where("usuario_id", $usuarioId)
+            ->whereNotNull("data_inicio")
+            ->whereNull("data_entrega")
+            ->whereDoesntHave('pausas', fn(Builder $query) => $query->whereNull('data_fim'))
+            ->pluck('id')
+            ->toArray();
     }
 
-    public function avaliadas($usuario_id) {
-        $result = [];
-        $atividades = Atividade::select("id")->where("usuario_id", $usuario_id)->whereNotNull("avaliacao_id")->where(["tempo_homologado",">",0])->get();
-        foreach ($atividades as $atividade) {
-            array_push($result, $atividade->id);
-        }
-        return $result;
+    public function avaliadas(string $usuarioId): array
+    {
+        return Atividade::select("id")
+            ->where("usuario_id", $usuarioId)
+            ->whereNotNull("avaliacao_id")
+            ->where("tempo_homologado", ">", 0)
+            ->pluck('id')
+            ->toArray();
     }
 
-    public function isConcluida($atividade) {
+    public function isConcluida(array $atividade): bool
+    {
         return !empty($atividade['data_entrega']);
     }
 
-    public function isIniciada($atividade) {
+    public function isIniciada(array $atividade): bool
+    {
         return !empty($atividade['data_inicio']);
     }
 
-    public function withinPeriodo($atividade, $inicioPeriodo, $fimPeriodo) {
-        if ($inicioPeriodo == null && $fimPeriodo == null) return true;
-        if(UtilService::intersection([
-                    new Interval(['start' => strtotime($inicioPeriodo), 'end' => strtotime($fimPeriodo)]),
-                    new Interval(['start' => strtotime($atividade['data_distribuicao']), 'end' => $atividade['data_entrega'] ? UtilService::maxDate(strtotime($atividade['data_estipulada_entrega']),strtotime($atividade['data_entrega'])) : strtotime($atividade['data_estipulada_entrega'])])
-            ])) return true;
-        return false;
+    public function withinPeriodo(array $atividade, ?string $inicioPeriodo, ?string $fimPeriodo): bool
+    {
+        if ($inicioPeriodo === null && $fimPeriodo === null) {
+            return true;
+        }
+        
+        $endDate = $atividade['data_entrega'] 
+            ? UtilService::maxDate(strtotime($atividade['data_estipulada_entrega']), strtotime($atividade['data_entrega']))
+            : strtotime($atividade['data_estipulada_entrega']);
+            
+        return UtilService::intersection([
+            new Interval(['start' => strtotime($inicioPeriodo), 'end' => strtotime($fimPeriodo)]),
+            new Interval(['start' => strtotime($atividade['data_distribuicao']), 'end' => $endDate])
+        ]) !== null;
     }
 
-    /* @override */
-    public function getById($data)
+    public function getById(array $data): Atividade
     {
         $atividade = Atividade::find($data["id"]);
-        if(!empty($atividade)) {
-            $join = [];
-            $util = $this->utilService;
-            $data["with"] = isset($this->joinable) ? $this->getJoinable($data["with"] ?? []) : $data["with"];
-            if(count($data['with']) > 0) {
-                $data['with'] = $this->getCamelWith($data['with']);
-                foreach($data['with'] as $with) {
-                    if(strtolower($with) == "usuario.afastamentos") {
-                        $join["usuario.afastamentos"] = function ($query) use ($atividade, $util) {
-                            $tomorrow = Carbon::now()->add(1, "days")->format(ServiceBase::ISO8601_FORMAT);
-                            $query->where("data_fim", ">=", $atividade->data_distribuicao);
-                            $query->where("data_inicio", "<=", UtilService::maxDate($atividade->data_estipulada_entrega, $atividade->data_entrega, $tomorrow));
-                        };
-                    } else {
-                        array_push($join, $with);
-                    }
-                }
-            }
-            $atividade = Atividade::with($join)->where("id", $atividade->id)->first();
-            $atividade->metadados = $this->metadados($atividade);
-            return $atividade;
-        } else {
+        
+        if (empty($atividade)) {
             throw new ServerException("ValidateAtividade", "Id não encontrado");
         }
+        
+        $join = $this->buildJoinRelations($data, $atividade);
+        $atividade = Atividade::with($join)->where("id", $atividade->id)->first();
+        $atividade->metadados = $this->metadados($atividade);
+        
+        return $atividade;
     }
 
-    public function lastConsolidacao($atividadeId) {
-        return PlanoTrabalhoConsolidacaoAtividade::with(["consolidacao"])->where("atividade_id", $atividadeId)->orderBy("data_conclusao", "DESC")->first();
+    public function lastConsolidacao(string $atividadeId): ?PlanoTrabalhoConsolidacaoAtividade
+    {
+        return PlanoTrabalhoConsolidacaoAtividade::with(["consolidacao"])
+            ->where("atividade_id", $atividadeId)
+            ->orderBy("data_conclusao", "DESC")
+            ->first();
     }
 
     /**
-     * (RN_CSLD_9) Se uma atividade for iniciada em uma outra consolidação anterior (CONCLUIDO ou AVALIADO), não poderá mais retroceder nem editar o inicio (Exemplo.: Retroceder de INICIADO para INCLUIDO, ou de CONCLUIDO para INICIADO);
-     * (RN_CSLD_10) A atividade já iniciado so não pode pausar com data retroativa da última consolidação CONCLUIDO ou AVALIADO
-     * 
-     * @param string       $atividadeId  Id da atividade para validação
-     * @param string       $newStatus    Novo status que se deseja atualizar
-     * @param array | null $entity       Objeto da Pausa
+     * (RN_CSLD_9) Se uma atividade for iniciada em uma outra consolidação anterior (CONCLUIDO ou AVALIADO),
+     * não poderá mais retroceder nem editar o inicio
+     * (RN_CSLD_10) A atividade já iniciada só não pode pausar com data retroativa da última consolidação
      */
-    public function validateBackward($atividadeId, $newStatus, $entity = null) {
+    public function validateBackward(string $atividadeId, string $newStatus, ?array $entity = null): void
+    {
         $lastConsolidacao = $this->lastConsolidacao($atividadeId);
-        if(!empty($lastConsolidacao)) {
-            $lastStatus = $lastConsolidacao->snapshot->status;
-            $msgConsolidacao = "(Consolidação de " . UtilService::getDateFormatted($lastConsolidacao->consolidacao->data_inicio) . " até " . UtilService::getDateFormatted($lastConsolidacao->consolidacao->data_fim) . ")";
-            if($newStatus == "STORE" && $lastStatus != "INCLUIDO") throw new ServerException("ValidateAtividade", "Já existe uma consolidação com esta atividade como INICIADO, não podendo ser modificada. " . $msgConsolidacao);
-            if($newStatus == "INCLUIDO" && $lastStatus == "INICIADO") throw new ServerException("ValidateAtividade", "Já existe uma consolidação com esta atividade como INICIADO, não podendo retroagir. " . $msgConsolidacao);
-            if($newStatus == "INICIADO" && $lastStatus == "CONCLUIDO") throw new ServerException("ValidateAtividade", "Já existe uma consolidação com esta atividade como CONCLUIDO, não podendo retroagir. " . $msgConsolidacao);
-            if($newStatus == "PAUSADO" && UtilService::asTimestamp($entity["data"]) < UtilService::asTimestamp($lastConsolidacao->data_conclusao)) throw new ServerException("ValidateAtividade", "Data para pausa deverá ser superior da última consolidação concluída. " . "Já existe uma consolidação com esta atividade como INICIADO, não podendo retroagir. " . $msgConsolidacao);
+        
+        if (empty($lastConsolidacao)) {
+            return;
         }
+        
+        $lastStatus = $lastConsolidacao->snapshot->status;
+        $msgConsolidacao = sprintf(
+            "(Consolidação de %s até %s)",
+            UtilService::getDateFormatted($lastConsolidacao->consolidacao->data_inicio),
+            UtilService::getDateFormatted($lastConsolidacao->consolidacao->data_fim)
+        );
+        
+        $this->validateStatusTransition($newStatus, $lastStatus, $msgConsolidacao, $entity, $lastConsolidacao);
     }
 
     public function iniciar($data, $unidade) {
@@ -667,107 +659,331 @@ class AtividadeService extends ServiceBase
         return true;
     }
 
-    public function arquivar($data, $unidade) {
+    public function arquivar(array $data, Unidade $unidade): bool
+    {
         try {
             DB::beginTransaction();
+            
             $atividade = Atividade::find($data["id"]);
-            if(!empty($atividade)) {
-                $this->update([
-                    "id" => $atividade->id,
-                    "data_arquivamento" => $data["arquivar"] ? Carbon::now() : null
-                ], $unidade, false);
-            } else {
+            if (empty($atividade)) {
                 throw new ServerException("ValidateAtividade", "Atividade não encontrada!");
             }
+            
+            // Se está arquivando e a atividade não está concluída, pausar primeiro
+            if ($data["arquivar"] && empty($atividade->data_entrega) && !empty($atividade->data_inicio)) {
+                $dataHora = $this->unidadeService->hora($unidade->id);
+                $this->pausar([
+                    "atividade_id" => $atividade->id,
+                    "data" => $dataHora
+                ], $unidade);
+            }
+            
+            $this->update([
+                "id" => $atividade->id,
+                "data_arquivamento" => $data["arquivar"] ? Carbon::now() : null
+            ], $unidade, false);
+            
             DB::commit();
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;
         }
+        
         return true;
     }
 
-    public function hierarquia($data)
+    public function hierarquia(array $data): array
     {
         $atividade = Atividade::find($data["atividade_id"]);
-        if (!empty($atividade)) {
-            $entregaPlanoTrabalho = $atividade->planoTrabalhoEntrega;
-            $entregaPlanoEntrega = $entregaPlanoTrabalho->planoEntregaEntrega;
-            $entregasPlanoEntrega = $this->recuperarEntregasSuperiores($entregaPlanoEntrega);
-
-            $retorno = [
-                'atividade' => $atividade,
-                'entregaPlanoTrabalho' => $entregaPlanoTrabalho,
-                'entregasPlanoEntrega' => $entregasPlanoEntrega,
-            ];
-
-            $resultados = $this->recuperarObjetivosProcessosParaEntregas($entregasPlanoEntrega);
-            $retorno['objetivos'] = $resultados['objetivos'];
-            $retorno['processos'] = $resultados['processos'];
-
-            $retorno['planejamento'] = count($resultados['objetivos'])>0 ? $resultados['objetivos'][0]->planejamento : null;
-            $retorno['cadeiaValor'] = count($resultados['processos'])>0 ? $resultados['processos'][0]->cadeiaValor : null;
-
-            return $retorno;
-        } else {
+        
+        if (empty($atividade)) {
             throw new ServerException("ValidateAtividade", "Id não encontrado");
         }
+        
+        $entregaPlanoTrabalho = $atividade->planoTrabalhoEntrega;
+        $entregaPlanoEntrega = $entregaPlanoTrabalho->planoEntregaEntrega;
+        $entregasPlanoEntrega = $this->recuperarEntregasSuperiores($entregaPlanoEntrega);
+        
+        $resultados = $this->recuperarObjetivosProcessosParaEntregas($entregasPlanoEntrega);
+        
+        return [
+            'atividade' => $atividade,
+            'entregaPlanoTrabalho' => $entregaPlanoTrabalho,
+            'entregasPlanoEntrega' => $entregasPlanoEntrega,
+            'objetivos' => $resultados['objetivos'],
+            'processos' => $resultados['processos'],
+            'planejamento' => !empty($resultados['objetivos']) ? $resultados['objetivos'][0]->planejamento : null,
+            'cadeiaValor' => !empty($resultados['processos']) ? $resultados['processos'][0]->cadeiaValor : null,
+        ];
     }
 
-    public function recuperarEntregasSuperiores($entregaPlanoEntrega = null)
+    public function recuperarEntregasSuperiores(?PlanoEntregaEntrega $entregaPlanoEntrega = null): array
     {
-        $result = [];
-        if(!empty($entregaPlanoEntrega)) {
-            $entregaPlanoEntrega->entrega;
-            $result = [$entregaPlanoEntrega];
-            $atual = $entregaPlanoEntrega;
-            while(!empty($atual->entrega_pai_id)) {
-                $result[] = $atual->entregaPai;
-                $atual = $atual->entregaPai;
-                $atual->entrega;
-            }
+        if (empty($entregaPlanoEntrega)) {
+            return [];
         }
+        
+        $entregaPlanoEntrega->entrega;
+        $result = [$entregaPlanoEntrega];
+        $atual = $entregaPlanoEntrega;
+        
+        while (!empty($atual->entrega_pai_id)) {
+            $result[] = $atual->entregaPai;
+            $atual = $atual->entregaPai;
+            $atual->entrega;
+        }
+        
         return $result;
-
     }
 
-    public function recuperarObjetivosProcessosParaEntregas($entregas)
+    public function recuperarObjetivosProcessosParaEntregas(array $entregas): array
     {
         $objetivosIds = [];
         $processosIds = [];
+        
         foreach ($entregas as $entrega) {
-            $objetivosIds = array_merge($objetivosIds, $entrega->objetivos->pluck('planejamento_objetivo_id')->toArray());
-            $processosIds = array_merge($processosIds, $entrega->processos->pluck('cadeia_processo_id')->toArray());
+            $objetivosIds = array_merge(
+                $objetivosIds, 
+                $entrega->objetivos->pluck('planejamento_objetivo_id')->toArray()
+            );
+            $processosIds = array_merge(
+                $processosIds, 
+                $entrega->processos->pluck('cadeia_processo_id')->toArray()
+            );
         }
-
-        $objetivos = [];
-        $processos = [];
-        $planejamentoObjetivos = PlanejamentoObjetivo::whereIn('id', $objetivosIds)->get();
-        $planejamnetoProcessos = CadeiaValorProcesso::whereIn('id', $processosIds)->get();
-
-
-       foreach ($planejamentoObjetivos as $objetivo) {
-            $objetivos = [$objetivo];
-            $atual = $objetivo;
-            while(!empty($atual->objetivo_pai_id)) {
-                $objetivos[] = $atual->objetivoPai;
-                $atual = $atual->objetivoPai;
-            }        
-        }
-
-        foreach ($planejamnetoProcessos as $processo) {
-            $processos = [$processo];
-            $atual = $processo;
-            while(!empty($atual->processo_pai_id)) {
-                $processos[] = $atual->processoPai;
-                $atual = $atual->processoPai;
-            }        
-        }
-
+        
+        $objetivos = $this->buildObjetivosHierarchy($objetivosIds);
+        $processos = $this->buildProcessosHierarchy($processosIds);
+        
         return [
             'objetivos' => $objetivos,
             'processos' => $processos,
         ];
     }
-    
+
+    private function validateDatasPeriodoPlano(string $dataInicio, ?string $dataEntrega, PlanoTrabalho $plano): void
+    {
+        $dataInicioFormatada = date('Y-m-d', strtotime($dataInicio));
+        $dataEntregaFormatada = date('Y-m-d', strtotime($dataEntrega));
+        $dataInicioPlano = date('Y-m-d', strtotime($plano->data_inicio));
+        $dataFimPlano = date('Y-m-d', strtotime($plano->data_fim));
+        
+        $periodoPlanoFormatado = sprintf(
+            "Plano de trabalho: %s - %s",
+            UtilService::getDateFormatted($plano->data_inicio),
+            UtilService::getDateFormatted($plano->data_fim)
+        );
+        
+        if ($dataInicioFormatada < $dataInicioPlano || $dataInicioFormatada > $dataFimPlano) {
+            throw new ServerException(
+                "ValidateAtividade",
+                "A inicialização da atividade não pode ser anterior ou posterior ao plano de trabalho. ({$periodoPlanoFormatado})"
+            );
+        }
+        
+        if ($dataEntregaFormatada < $dataInicioPlano || $dataEntregaFormatada > $dataFimPlano) {
+            throw new ServerException(
+                "ValidateAtividade",
+                "A entrega da atividade não pode ser anterior ou posterior ao plano de trabalho. ({$periodoPlanoFormatado})"
+            );
+        }
+    }
+
+    private function validateDataAtividadeDentroPlano(PlanoTrabalho $plano, string $dataDistribuicao, string $dataEstipuladaEntrega): void
+    {
+        $inicioPlano = UtilService::asTimestamp($plano->data_inicio);
+        $fimPlano = UtilService::asTimestamp($plano->data_fim);
+        $inicioAtividade = UtilService::asTimestamp($dataDistribuicao);
+        $fimAtividade = UtilService::asTimestamp($dataEstipuladaEntrega);
+        
+        if ($inicioPlano > $inicioAtividade || $fimPlano < $fimAtividade) {
+            $periodoPlano = sprintf(
+                "Plano de trabalho: %s - %s",
+                UtilService::getDateTimeFormatted($plano->data_inicio),
+                UtilService::getDateTimeFormatted($plano->data_fim)
+            );
+            throw new ServerException(
+                "ValidateAtividade",
+                "Data da atividade extrapola a do plano de trabalho. ({$periodoPlano})\n[RN_ATV_5]"
+            );
+        }
+    }
+
+    private function validateConsolidacoesConcluidas(PlanoTrabalho $plano, string $action, string $id): void
+    {
+        foreach ($plano->consolidacoes as $concluida) {
+            $isInsert = $action === ServiceBase::ACTION_INSERT;
+            $existeConsolidacao = PlanoTrabalhoConsolidacaoAtividade::where("plano_trabalho_consolidacao_id", $concluida->id)
+                ->where("atividade_id", $id)
+                ->exists();
+                
+            if ($isInsert || !$existeConsolidacao) {
+                throw new ServerException(
+                    "ValidateAtividade",
+                    "Não será possível lançar novas atividades em períodos já CONCLUIDO ou AVALIADO.\n[ver RN_CSLD_14]"
+                );
+            }
+        }
+    }
+
+    private function validatePlanoTrabalho(array $data, string $action): void
+    {
+        $this->validatePeriodo(
+            $action,
+            $data["id"] ?? "",
+            $data["plano_trabalho_id"],
+            $data["plano_trabalho_entrega_id"],
+            $data["data_distribuicao"],
+            $data["data_estipulada_entrega"],
+            $data["data_inicio"],
+            $data["data_entrega"]
+        );
+        
+        $planoTrabalho = PlanoTrabalho::find($data["plano_trabalho_id"]);
+        if ($planoTrabalho->unidade_id !== $data["unidade_id"]) {
+            throw new ServerException("ValidateAtividade", "Unidade do plano diverge da unidade da atividade");
+        }
+    }
+
+    private function validateUsuarioAtividade(array $data, Unidade $unidade): void
+    {
+        $usuario = Usuario::find($data["usuario_id"]);
+        
+        if (!$this->usuarioService->hasLotacao($data["unidade_id"], $usuario, false)) {
+            if (!parent::loggedUser()->hasPermissionTo('MOD_ATV_USU_EXT')) {
+                throw new ServerException(
+                    "ValidateAtividade",
+                    "{$unidade->sigla} não é uma unidade (lotação) para o responsável, ou você não tem permissão para incluir atividade para usuário de outra unidade (MOD_ATV_USU_EXT)"
+                );
+            }
+        }
+    }
+
+    private function determineStatus(array $metadados): string
+    {
+        if ($metadados["pausado"]) {
+            return "PAUSADO";
+        }
+        
+        if ($metadados["concluido"]) {
+            return "CONCLUIDO";
+        }
+        
+        if ($metadados["iniciado"]) {
+            return "INICIADO";
+        }
+        
+        return "INCLUIDO";
+    }
+
+    private function isAtividadePausada($pausas): bool
+    {
+        foreach ($pausas as $pausa) {
+            if (empty($pausa->data_fim)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function buildJoinRelations(array $data, Atividade $atividade): array
+    {
+        $join = [];
+        $data["with"] = isset($this->joinable) ? $this->getJoinable($data["with"] ?? []) : $data["with"];
+        
+        if (count($data['with']) > 0) {
+            $data['with'] = $this->getCamelWith($data['with']);
+            
+            foreach ($data['with'] as $with) {
+                if (strtolower($with) === "usuario.afastamentos") {
+                    $join["usuario.afastamentos"] = function ($query) use ($atividade) {
+                        $tomorrow = Carbon::now()->add(1, "days")->format(ServiceBase::ISO8601_FORMAT);
+                        $query->where("data_fim", ">=", $atividade->data_distribuicao);
+                        $query->where("data_inicio", "<=", UtilService::maxDate(
+                            $atividade->data_estipulada_entrega,
+                            $atividade->data_entrega,
+                            $tomorrow
+                        ));
+                    };
+                } else {
+                    $join[] = $with;
+                }
+            }
+        }
+        
+        return $join;
+    }
+
+    private function validateStatusTransition(
+        string $newStatus,
+        string $lastStatus,
+        string $msgConsolidacao,
+        ?array $entity,
+        PlanoTrabalhoConsolidacaoAtividade $lastConsolidacao
+    ): void {
+        if ($newStatus === "STORE" && $lastStatus !== "INCLUIDO") {
+            throw new ServerException(
+                "ValidateAtividade",
+                "Já existe uma consolidação com esta atividade como INICIADO, não podendo ser modificada. {$msgConsolidacao}"
+            );
+        }
+        
+        if ($newStatus === "INCLUIDO" && $lastStatus === "INICIADO") {
+            throw new ServerException(
+                "ValidateAtividade",
+                "Já existe uma consolidação com esta atividade como INICIADO, não podendo retroagir. {$msgConsolidacao}"
+            );
+        }
+        
+        if ($newStatus === "INICIADO" && $lastStatus === "CONCLUIDO") {
+            throw new ServerException(
+                "ValidateAtividade",
+                "Já existe uma consolidação com esta atividade como CONCLUIDO, não podendo retroagir. {$msgConsolidacao}"
+            );
+        }
+        
+        if ($newStatus === "PAUSADO" && $entity && 
+            UtilService::asTimestamp($entity["data"]) < UtilService::asTimestamp($lastConsolidacao->data_conclusao)) {
+            throw new ServerException(
+                "ValidateAtividade",
+                "Data para pausa deverá ser superior da última consolidação concluída. {$msgConsolidacao}"
+            );
+        }
+    }
+
+    private function buildObjetivosHierarchy(array $objetivosIds): array
+    {
+        $objetivos = [];
+        $planejamentoObjetivos = PlanejamentoObjetivo::whereIn('id', $objetivosIds)->get();
+        
+        foreach ($planejamentoObjetivos as $objetivo) {
+            $objetivos = [$objetivo];
+            $atual = $objetivo;
+            
+            while (!empty($atual->objetivo_pai_id)) {
+                $objetivos[] = $atual->objetivoPai;
+                $atual = $atual->objetivoPai;
+            }
+        }
+        
+        return $objetivos;
+    }
+
+    private function buildProcessosHierarchy(array $processosIds): array
+    {
+        $processos = [];
+        $planejamentoProcessos = CadeiaValorProcesso::whereIn('id', $processosIds)->get();
+        
+        foreach ($planejamentoProcessos as $processo) {
+            $processos = [$processo];
+            $atual = $processo;
+            
+            while (!empty($atual->processo_pai_id)) {
+                $processos[] = $atual->processoPai;
+                $atual = $atual->processoPai;
+            }
+        }
+        
+        return $processos;
+    }
 }
